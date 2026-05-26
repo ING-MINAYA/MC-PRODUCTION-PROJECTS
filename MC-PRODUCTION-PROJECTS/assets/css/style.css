@@ -70,6 +70,19 @@ body {
 }
 
 
+.btn-carrito i {
+    font-size: 24px;
+    color: var(--color-texto);
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+
+.btn-carrito:hover i {
+    color: var(--color-primario);
+    transform: scale(1.1);
+}
+
+
 #principal {
     padding: 80px 50px;
     min-height: 60vh;
@@ -133,6 +146,11 @@ button {
     background-color: transparent;
     color: white;
     border: 1px solid var(--texto-secundario);
+}
+
+.btn-secundario a {
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .btn-secundario:hover {
@@ -318,13 +336,185 @@ footer {
     font-size: 12px;
 }
 
+/* --- CABECERA DEL CATÁLOGO (TIENDA) --- */
+.cabecera-catalogo {
+    text-align: center;
+    padding: 60px 20px 20px 20px;
+}
+
+.cabecera-catalogo h1 {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.cabecera-catalogo p {
+    color: var(--texto-secundario);
+    margin-bottom: 30px;
+}
+
+.filtros-catalogo {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap; /* Esto hace que los botones bajen de línea en celulares */
+}
+
+/* --- PÁGINA SOBRE NOSOTROS --- */
+.seccion-sobre {
+    padding: 80px 50px;
+    max-width: 1200px;
+    margin: 0 auto; /* Esto centra todo en pantallas muy grandes */
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+/* La tarjeta gigante que contiene texto e imagen */
+.contenido-sobre {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    background-color: var(--fondo-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.texto-sobre {
+    flex: 1; /* Ocupa la mitad del espacio */
+}
+
+/* Un toque especial para el título */
+.titulo-neon {
+    font-size: 35px;
+    color: var(--color-texto);
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px var(--color-primario);
+}
+
+.texto-sobre p {
+    color: var(--texto-secundario);
+    font-size: 16px;
+    margin-bottom: 15px;
+    line-height: 1.8;
+}
+
+/* Pintamos de morado los textos en negrita */
+.texto-sobre strong {
+    color: var(--color-primario);
+}
+
+.imagen-sobre {
+    flex: 1; /* Ocupa la otra mitad del espacio */
+}
+
+.imagen-sobre img {
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid var(--color-primario);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
+}
+
+/* RESPONSIVE: Para que en celulares la imagen pase abajo del texto */
+@media (max-width: 900px) {
+    .contenido-sobre {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+}
+
+/* --- PÁGINA DEL CARRITO --- */
+.contenedor-carrito {
+    max-width: 800px; /* Evita que el carrito se estire por toda la pantalla */
+    margin: 50px auto; /* Centra el carrito en la pantalla */
+    padding: 20px;
+}
+
+.titulo-carrito {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+.lista-carrito {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre cada producto */
+    margin-bottom: 30px;
+}
+
+/* El rectángulo de cada producto */
+.item-carrito {
+    display: flex;
+    align-items: center; /* Centra todo verticalmente */
+    background-color: var(--fondo-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    padding: 15px 20px;
+    border-radius: 10px;
+}
+
+.item-carrito img {
+    width: 70px;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+/* Esto empuja el precio y la "X" hacia la derecha */
+.info-carrito {
+    flex: 1; 
+}
+
+.info-carrito p {
+    color: var(--texto-secundario);
+    font-size: 14px;
+}
+
+.precio-carrito {
+    color: var(--color-primario);
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+/* El botón de la X para eliminar */
+.btn-eliminar {
+    background-color: transparent;
+    color: #ff4d4d; /* Rojo */
+    border: 1px solid #ff4d4d;
+    padding: 8px 12px;
+}
+
+.btn-eliminar:hover {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+/* El resumen final con el botón de pago */
+.resumen-carrito {
+    text-align: right; /* Todo a la derecha */
+    background-color: var(--fondo-tarjeta);
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid var(--color-primario);
+}
+
+.resumen-carrito h2 {
+    margin-bottom: 20px;
+}
+
+.total-precio {
+    color: var(--color-primario);
+}
+
 /* =========================================
    📱 DISEÑO RESPONSIVE (Media Queries)
    ========================================= */
 
-/* --- TABLETS Y LAPTOPS PEQUEÑAS (hasta 900px) --- */
 @media (max-width: 900px) {
-    /* Reducimos un poco los espacios gigantes de PC */
+
     #navbar, #principal, #tienda, #contacto {
         padding: 40px 30px;
     }
@@ -334,7 +524,6 @@ footer {
         padding: 30px;
     }
 
-    /* Achicamos la fuente principal para que no se corte */
     .texto-principal h1 {
         font-size: 45px;
     }
@@ -342,7 +531,6 @@ footer {
         font-size: 20px;
     }
 
-    /* Acomodamos la sección de contacto en columna */
     #contacto {
         flex-direction: column;
         text-align: center;
@@ -364,6 +552,12 @@ footer {
         justify-content: center;
         gap: 15px;
     }
+
+    @media (max-width: 600px) {
+    #menu {
+        align-items: center;
+    }
+}
 
     .texto-principal h1 {
         font-size: 35px;
