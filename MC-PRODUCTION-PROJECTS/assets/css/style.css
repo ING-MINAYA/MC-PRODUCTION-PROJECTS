@@ -151,6 +151,7 @@ button {
 .btn-secundario a {
     text-decoration: none;
     transition: color 0.3s ease;
+    color: #8a2be2;
 }
 
 .btn-secundario:hover {
