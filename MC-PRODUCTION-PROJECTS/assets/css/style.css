@@ -428,6 +428,51 @@ footer {
     box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
 }
 
+/* =========================================
+   🔔 NOTIFICACIÓN FLOTANTE (TOAST)
+   ========================================= */
+#notificacion-custom {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-primario);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: bold;
+    box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
+    transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 9999;
+    display: flex;
+    align-items: center; /* Alinea el ícono y el texto */
+    gap: 12px;
+    pointer-events: none;
+    
+    /* 🚀 LA MAGIA RESPONSIVE AQUÍ 🚀 */
+    width: max-content; /* Se ajusta al tamaño del texto... */
+    max-width: 90%;     /* ...pero nunca se sale del 90% de la pantalla */
+}
+
+#notificacion-custom.mostrar {
+    bottom: 40px; 
+}
+
+/* 📱 Ajustes extra finos para Celulares */
+@media (max-width: 600px) {
+    #notificacion-custom {
+        padding: 12px 18px; /* Un poco menos de relleno */
+        font-size: 14px; /* Letra un toque más pequeña */
+        gap: 8px; /* Ícono y texto más juntitos */
+        text-align: center; /* Centramos el texto por si salta a dos líneas */
+        flex-direction: column; /* Si quieres que el ícono quede arriba del texto, quita esta línea si lo prefieres al lado */
+    }
+    
+    #notificacion-custom.mostrar {
+        bottom: 20px; /* En móviles no necesita subir tanto */
+    }
+}
+
 /* RESPONSIVE: Para que en celulares la imagen pase abajo del texto */
 @media (max-width: 900px) {
     .contenido-sobre {

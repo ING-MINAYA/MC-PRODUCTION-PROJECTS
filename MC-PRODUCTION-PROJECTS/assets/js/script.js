@@ -16,16 +16,55 @@ if (iconoMenu) {
 }
 
 // ==========================================
-// 2. CONTROL INTELIGENTE DE AUDIOS
+// 2. CONTROL INTELIGENTE, PREVIEW Y NOTIFICACIÓN
 // ==========================================
+
+// A) CREAMOS EL GLOBO DE NOTIFICACIÓN INVISIBLE
+const notificacion = document.createElement('div');
+notificacion.id = 'notificacion-custom';
+// Le metemos un ícono de Boxicons y un espacio para el texto
+notificacion.innerHTML = `<i class='bx bx-info-circle' style='font-size: 24px;'></i> <span id="texto-notificacion"></span>`;
+document.body.appendChild(notificacion);
+
+// B) FUNCIÓN PARA MOSTRAR EL MENSAJE BONITO
+function mostrarAlertaElegante(mensaje) {
+    document.getElementById('texto-notificacion').textContent = mensaje;
+    notificacion.classList.add('mostrar'); // Sube a la pantalla
+
+    // Lo volvemos a esconder después de 4 segundos
+    setTimeout(() => {
+        notificacion.classList.remove('mostrar');
+    }, 4000);
+}
+
+// C) EL CONTROL DE LA MÚSICA
 const todosLosAudios = document.querySelectorAll('audio');
+
 todosLosAudios.forEach(audio => {
+    
+    // Pausar los demás al darle play a uno
     audio.addEventListener('play', () => {
         todosLosAudios.forEach(otroAudio => {
-            if (otroAudio !== audio) otroAudio.pause();
+            if (otroAudio !== audio) {
+                otroAudio.pause();
+            }
         });
     });
+
+    // El vigilante de los 30 segundos
+    audio.addEventListener('timeupdate', () => {
+        if (audio.currentTime >= 30) {
+            audio.pause();           
+            audio.currentTime = 0;   
+            
+            // ¡AQUÍ ESTÁ LA MAGIA! Llamamos a nuestra alerta elegante en vez del alert() feo
+            mostrarAlertaElegante("¡Preview finalizado! Agrega el track al carrito para escucharlo completo.");
+        }
+    });
+
 });
+
+
 
 // ==========================================
 // CONFIGURACIÓN DE LA BASE DE DATOS LOCAL
@@ -321,3 +360,4 @@ if (formLogin) {
         }, 1500);
     });
 }
+
