@@ -526,6 +526,60 @@ footer {
     color: var(--color-primario);
 }
 
+/* 1. REGLA PARA ESCRITORIO (Ocultar siempre el ícono) */
+#icono-menu {
+    display: none !important;
+}
+
+/* =========================================
+   📱 DISEÑO RESPONSIVE (CELULARES)
+   ========================================= */
+@media (max-width: 600px) {
+    
+    /* 2. REGLA PARA CELULARES (Mostrar y fijar el ícono) */
+    #icono-menu {
+        display: block !important;
+        position: absolute !important;
+        top: 25px !important; 
+        right: 20px !important; 
+        z-index: 100000 !important; 
+        color: #ffffff !important;  
+        font-size: 35px !important; 
+    }
+
+    /* Aseguramos que la barra sea el ancla */
+    #navbar {
+        padding: 15px 20px;
+        position: relative; 
+    }
+
+    #logo-texto {
+        font-size: 18px; 
+    }
+
+    /* El menú desplegable */
+    #menu {
+        display: none; 
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        background-color: var(--fondo-tarjeta);
+        padding: 20px 0;
+        position: absolute;
+        top: 70px; 
+        left: 0;
+        border-bottom: 1px solid var(--color-primario);
+        z-index: 9999;
+        gap: 15px;
+    }
+
+    #menu.activo {
+        display: flex;
+    }
+
+    /* ... mantén aquí abajo tus otras reglas de celular (botones, hero, etc.) ... */
+}
+
 /* =========================================
    📱 DISEÑO RESPONSIVE (TABLETS)
    ========================================= */
