@@ -1,17 +1,31 @@
 // ==========================================
-// 1. MENÚ MÓVIL (Hamburguesa)
+// 1. MENÚ MÓVIL (Hamburguesa) MEJORADO
 // ==========================================
 const iconoMenu = document.getElementById('icono-menu');
 const menu = document.getElementById('menu');
+// NUEVO: Buscamos todos los enlaces que viven adentro del menú
+const enlacesMenu = document.querySelectorAll('#menu li a'); 
 
 if (iconoMenu) {
+    // Función 1: Abrir y cerrar tocando el ícono (La "X")
     iconoMenu.addEventListener('click', () => {
         menu.classList.toggle('activo');
+        
         if (menu.classList.contains('activo')) {
-            iconoMenu.classList.replace('bx-menu', 'bx-x');
-        } else {
+    iconoMenu.classList.replace('bx-menu', 'bx-x'); // Aquí le pone la X
+} else {
+    iconoMenu.classList.replace('bx-x', 'bx-menu'); // Aquí vuelve a las rayitas
+}
+    });
+
+    // Función 2: Cerrar automáticamente al tocar cualquier enlace
+    enlacesMenu.forEach(enlace => {
+        enlace.addEventListener('click', () => {
+            // Ocultamos el menú
+            menu.classList.remove('activo');
+            // Regresamos el ícono de la "X" a las 3 rayitas
             iconoMenu.classList.replace('bx-x', 'bx-menu');
-        }
+        });
     });
 }
 
