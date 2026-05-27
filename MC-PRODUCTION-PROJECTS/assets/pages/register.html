@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro | MC PRODUCTIONS</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/assets/css/login.css">
 </head>
 <body>
@@ -13,7 +14,7 @@
             <img src="/assets/img/logo.png" alt="Logo MC" class="logo-img">
             <h1 id="logo-texto">MC PRODUCTIONS</h1>
         </div>
-        <a href="/index.html" class="btn-volver">Volver al inicio</a>
+        <a href="/index.html" class="btn-volver" style="color: var(--texto-secundario); text-decoration: none;">Volver al inicio</a>
     </header>
 
     <main id="contenedor-login">
@@ -21,7 +22,8 @@
             <h2>CREAR CUENTA</h2>
             <p>Únete a la nueva generación musical.</p>
 
-            <form action="/register" method="POST">
+            
+            <form id="form-register">
                 
                 <div class="grupo-input">
                     <label for="usuario">Nombre de Usuario</label>
@@ -35,17 +37,26 @@
 
                 <div class="grupo-input">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" placeholder="********" required>
+                    <div style="position: relative;">
+                        <input type="password" id="password" name="password" placeholder="********" required style="width: 100%; padding-right: 40px;">
+                        <i class='bx bx-hide' id="toggle-password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; color: gray; cursor: pointer;"></i>
+                    </div>
                 </div>
 
                 <div class="grupo-input">
                     <label for="confirmar-password">Confirmar Contraseña</label>
-                    <input type="password" id="confirmar-password" name="confirmar-password" placeholder="********" required>
+                    <div style="position: relative;">
+                        <input type="password" id="confirmar-password" name="confirmar-password" placeholder="********" required style="width: 100%; padding-right: 40px;">
+                        <i class='bx bx-hide' id="toggle-confirm-password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; color: gray; cursor: pointer;"></i>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn-primario">REGISTRARSE</button>
+                <!-- Mensaje de error oculto -->
+                <p id="mensaje-error" style="color: #ff4d4d; font-size: 14px; text-align: center; display: none; margin-top: -10px; margin-bottom: 15px; font-weight: bold;"></p>
 
-                <p class="texto-registro">¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+                <button type="submit" class="btn-primario" style="width: 100%;">REGISTRARSE</button>
+
+                <p class="texto-registro">¿Ya tienes cuenta? <a href="login.html" style="color: #8a2be2;">Inicia sesión aquí</a></p>
             </form>
         </section>
     </main>
@@ -54,5 +65,6 @@
         <p>&copy; 2026 MC Productions. Todos los derechos reservados.</p>
     </footer>
 
+    <script src="/assets/js/script.js"></script>
 </body>
 </html>

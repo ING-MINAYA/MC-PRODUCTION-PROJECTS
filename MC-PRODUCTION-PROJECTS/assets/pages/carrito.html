@@ -14,13 +14,16 @@
             <img src="/assets/img/logo.png" alt="Logo MC" class="logo-img">
             <h1 id="logo-texto">MC PRODUCTIONS</h1>
         </div>
+
+        <i class='bx bx-menu' id="icono-menu" style="font-size: 35px; color: white; cursor: pointer; display: none;"></i>
+        
         <ul id="menu">
             <li><a href="/index.html">INICIO</a></li>
             <li><a href="tienda.html">TIENDA</a></li>
             <li><a href="/index.html#contacto">CONTACTO</a></li>
-            <li><a href="login.html">INICIAR SESION</a></li>
+            <li><a href="login.html">LOGIN</a></li>
             <li>
-                <a href="assets/pages/carrito.html" class="btn-carrito">
+                <a href="carrito.html" class="btn-carrito">
                     <i style="color: #8a2be2" class='bx bx-cart'></i>
                 </a>
             </li>
@@ -30,38 +33,28 @@
     <main class="contenedor-carrito">
         <h1 class="titulo-carrito">TU CARRITO DE COMPRAS</h1>
         
-        <div class="lista-carrito">
+        <!-- Le pusimos un ID para que JS pueda inyectar los productos aquí en el futuro -->
+        <div class="lista-carrito" id="lista-carrito">
             
-            <article class="item-carrito">
-                <img src="https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/53/0f/82/530f8225-358e-57d0-96ff-0734dba32250/196006946838.jpg/1200x1200bf-60.jpg" alt="Album">
-                <div class="info-carrito">
-                    <h3>5 STAR</h3>
-                    <p>Eladio Carrion</p>
-                </div>
-                <p class="precio-carrito">$9.99</p>
-                <button class="btn-eliminar">X</button>
-            </article>
-
-            <article class="item-carrito">
-                <img src="https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/53/0f/82/530f8225-358e-57d0-96ff-0734dba32250/196006946838.jpg/1200x1200bf-60.jpg" alt="Album">
-                <div class="info-carrito">
-                    <h3>MIDAS</h3>
-                    <p>Eladio Carrion</p>
-                </div>
-                <p class="precio-carrito">$9.99</p>
-                <button class="btn-eliminar">X</button>
-            </article>
+            <!-- Mensaje de Estado Vacío -->
+            <div class="carrito-vacio" style="text-align: center; padding: 50px 20px;">
+                <i class='bx bx-cart' style="font-size: 60px; color: var(--texto-secundario); margin-bottom: 15px;"></i>
+                <h3 style="color: var(--texto-secundario); margin-bottom: 20px;">Tu carrito está vacío</h3>
+                <a href="tienda.html" class="btn-primario" style="text-decoration: none; display: inline-block;">IR A LA TIENDA</a>
+            </div>
 
         </div>
 
         <div class="resumen-carrito">
-            <h2>TOTAL: <span class="total-precio">$19.98</span></h2>
-            <button class="btn-primario">PROCEDER AL PAGO</button>
+            <h2>TOTAL: <span class="total-precio">$0.00</span></h2>
+            <button class="btn-secundario">PROCEDER AL PAGO</button>
         </div>
     </main>
 
     <footer>
         <p>&copy; 2026 MC Productions. Todos los derechos reservados.</p>
     </footer>
+
+    <script src="/assets/js/script.js"></script>
 </body>
 </html>

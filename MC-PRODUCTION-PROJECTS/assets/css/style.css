@@ -30,7 +30,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 50px;
+    padding: 15px 50px;
     background-color: rgba(9, 3, 15, 0.9);
     border-bottom: 1px solid var(--borde-tarjeta);
 }
@@ -38,6 +38,7 @@ body {
 .logo-container {
     display: flex;
     align-items: center;
+    gap: 15px;
 }
 
 .logo-img {
@@ -47,7 +48,7 @@ body {
 }
 
 #logo-texto {
-    font-size: 20px;
+    font-size: 15px;
     letter-spacing: 2px;
     color: white;
 }
@@ -132,31 +133,37 @@ button {
 }
 
 .btn-primario {
+    display: inline-block; /* Súper importante para mantener la forma del botón */
+    text-decoration: none; /* Le quita la línea de abajo al texto */
+    text-align: center;
+    
+    /* ... mantén todo el resto del código que ya tenías para esta clase ... */
     background-color: var(--color-primario);
     color: white;
     border: none;
-    box-shadow: 0 0 15px var(--color-primario);
-}
-
-.btn-primario:hover {
-    box-shadow: 0 0 25px var(--color-primario);
+    padding: 12px 24px;
+    /* etc... */
 }
 
 .btn-secundario {
+    display: inline-block; /* Súper importante para que respete el padding */
+    padding: 12px 24px;    /* El mismo tamaño que tus otros botones */
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
     background-color: transparent;
     color: white;
     border: 1px solid var(--texto-secundario);
+    text-decoration: none; /* Le quita la rayita de abajo al enlace */
+    transition: all 0.3s ease;
+    text-align: center;
 }
 
-.btn-secundario a {
-    text-decoration: none;
-    transition: color 0.3s ease;
-    color: #8a2be2;
-}
-
+/* El efecto al pasar el mouse */
 .btn-secundario:hover {
     border-color: var(--color-primario);
     color: var(--color-primario);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.2); /* Un brillito extra opcional */
 }
 
 #tienda {
@@ -181,7 +188,8 @@ button {
 .grid-albumes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    gap: 30px;
+    justify-content: center;
 }
 
 .album {
@@ -191,6 +199,9 @@ button {
     padding: 20px;
     text-align: left;
     transition: transform 0.3s;
+    max-width: 350px;
+    width: 100%; 
+    margin: 0 auto;
 }
 
 .album:hover {
@@ -593,5 +604,46 @@ footer {
 
     .redes {
         width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Mostramos el ícono de las 3 rayitas */
+    #icono-menu {
+        display: block !important; 
+    }
+
+    /* Ocultamos el menú por defecto y lo preparamos para desplegarse */
+    #menu {
+        display: none; /* Lo ocultamos inicialmente */
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        background-color: var(--fondo-tarjeta);
+        padding: 20px 0;
+        position: absolute;
+        top: 80px; /* Justo debajo del navbar */
+        left: 0;
+        border-bottom: 1px solid var(--color-primario);
+    }
+
+    /* ¡Esta es la clase que JavaScript va a activar! */
+    #menu.activo {
+        display: flex;
+    }
+}
+
+@media (max-width: 600px) {
+    .botones-hero {
+        display: flex;
+        flex-direction: column; /* Apila los botones uno encima del otro */
+        gap: 15px; /* Espacio entre los botones apilados */
+        width: 100%; /* Se asegura de que la caja ocupe toda la pantalla */
+        margin-top: 20px;
+    }
+
+    .botones-hero a {
+        width: 100%; /* Hace que los botones se estiren de lado a lado */
+        text-align: center; /* Mantiene el texto perfectamente centrado */
     }
 }

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda | MC PRODUCTIONS</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
@@ -16,11 +15,13 @@
             <h1 id="logo-texto">MC PRODUCTIONS</h1>
         </div>
 
+        <i class='bx bx-menu' id="icono-menu" style="font-size: 35px; color: white; cursor: pointer; display: none;"></i>
+        
         <ul id="menu">
             <li><a href="/index.html">INICIO</a></li>
             <li><a href="tienda.html" style="color: #8a2be2">TIENDA</a></li>
             <li><a href="/index.html#contacto">CONTACTO</a></li>
-            <li><a href="login.html">INICIAR SESION</a></li>
+            <li><a href="login.html">LOGIN</a></li>
             <li>
                 <a href="carrito.html" class="btn-carrito">
                     <i class='bx bx-cart'></i>
@@ -32,29 +33,30 @@
     <main id="contenedor">
         
         <section class="cabecera-catalogo">
-    <h1>CATÁLOGO COMPLETO</h1>
-    <p>Explora todos nuestros beats, álbumes y licencias exclusivas.</p>
-    
-    <div class="filtros-catalogo">
-        <button class="btn-primario">TODO</button>
-        <button class="btn-secundario">ÁLBUMES</button>
-        <button class="btn-secundario">BEATS EXCLUSIVOS</button>
-        <button class="btn-secundario">SOUNDKITS</button>
-    </div>
-</section>
+            <h1>CATÁLOGO COMPLETO</h1>
+            <p>Explora todos nuestros beats, álbumes y licencias exclusivas.</p>
+            
+            <div class="filtros-catalogo">
+                <button class="btn-primario">TODO</button>
+                <button class="btn-secundario">ÁLBUMES</button>
+                <button class="btn-secundario">BEATS EXCLUSIVOS</button>
+                <button class="btn-secundario">SOUNDKITS</button>
+            </div>
+        </section>
 
         <section id="tienda">
             <div class="grid-albumes">
                 
-                <article class="album">
+                <article class="album" data-categoria="ALBUMES">
                     <img src="https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/53/0f/82/530f8225-358e-57d0-96ff-0734dba32250/196006946838.jpg/1200x1200bf-60.jpg" alt="imagen-album">
                     <h4>ELADIO CARRION</h4>
                     <p>5 STAR</p>
                     <audio src="/assets/sound/Eladio Carrion - 5 Star.mp3#t=0,30" controls></audio>
                     <p class="precio">$9.99</p>
-                    <button class="btn-comprar">AGREGAR AL CARRITO</button> </article>
+                    <button class="btn-comprar">AGREGAR AL CARRITO</button> 
+                </article>
 
-                <article class="album">
+                <article class="album" data-categoria="BEATS EXCLUSIVOS">
                     <img src="https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/53/0f/82/530f8225-358e-57d0-96ff-0734dba32250/196006946838.jpg/1200x1200bf-60.jpg" alt="imagen-album">
                     <h4>ELADIO CARRION</h4>
                     <p>LA NOVENA</p>
@@ -63,7 +65,7 @@
                     <button class="btn-comprar">AGREGAR AL CARRITO</button>
                 </article>
 
-                <article class="album">
+                <article class="album" data-categoria="SOUNDKITS">
                     <img src="https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/53/0f/82/530f8225-358e-57d0-96ff-0734dba32250/196006946838.jpg/1200x1200bf-60.jpg" alt="imagen-album">
                     <h4>ELADIO CARRION</h4>
                     <p>MIDAS</p>
@@ -72,7 +74,7 @@
                     <button class="btn-comprar">AGREGAR AL CARRITO</button>
                 </article>
 
-                </div>
+            </div>
         </section>
 
     </main>
@@ -80,5 +82,7 @@
     <footer>
         <p>&copy; 2026 MC Productions. Todos los derechos reservados.</p>
     </footer>
+
+    <script src="/assets/js/script.js"></script>
 </body>
 </html>
