@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tu Carrito | MC PRODUCTIONS</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <title>Carrito | MC PRODUCTIONS</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
     
@@ -19,36 +19,29 @@
         
         <ul id="menu">
             <li><a href="/index.html">INICIO</a></li>
-            <li><a href="tienda.html">TIENDA</a></li>
+            <li><a href="/assets/pages/tienda.html">TIENDA</a></li>
             <li><a href="/index.html#contacto">CONTACTO</a></li>
-            <li><a href="login.html">LOGIN</a></li>
+            <li><a href="/assets/pages/login.html">LOGIN</a></li>
             <li>
-                <a href="carrito.html" class="btn-carrito">
-                    <i style="color: #8a2be2" class='bx bx-cart'></i>
+                <a href="/assets/pages/carrito.html" class="btn-carrito" style="color: #8a2be2">
+                    <i class='bx bx-cart'></i>
                 </a>
             </li>
         </ul>
     </nav>
 
-    <main class="contenedor-carrito">
-        <h1 class="titulo-carrito">TU CARRITO DE COMPRAS</h1>
+    <main id="contenedor" class="contenedor-carrito">
         
-        <!-- Le pusimos un ID para que JS pueda inyectar los productos aquí en el futuro -->
-        <div class="lista-carrito" id="lista-carrito">
-            
-            <!-- Mensaje de Estado Vacío -->
-            <div class="carrito-vacio" style="text-align: center; padding: 50px 20px;">
-                <i class='bx bx-cart' style="font-size: 60px; color: var(--texto-secundario); margin-bottom: 15px;"></i>
-                <h3 style="color: var(--texto-secundario); margin-bottom: 20px;">Tu carrito está vacío</h3>
-                <a href="tienda.html" class="btn-primario" style="text-decoration: none; display: inline-block;">IR A LA TIENDA</a>
-            </div>
+        <h1 class="titulo-carrito">TU CARRITO DE COMPRAS</h1>
 
-        </div>
+        <div id="lista-carrito" class="lista-carrito">
+            </div>
 
         <div class="resumen-carrito">
             <h2>TOTAL: <span class="total-precio">$0.00</span></h2>
-            <button class="btn-secundario">PROCEDER AL PAGO</button>
+            <button class="btn-primario" style="width: 100%; margin-top: 15px;">PROCEDER AL PAGO</button>
         </div>
+
     </main>
 
     <footer>
