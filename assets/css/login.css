@@ -1,0 +1,225 @@
+/* --- CONFIGURACIÓN BASE Y VARIABLES --- */
+:root {
+    --fondo-oscuro: #09030f;      /* Negro azulado del espacio */
+    --fondo-tarjeta: #120b18;     /* Un tono más claro para que la tarjeta resalte */
+    --color-primario: #8a2be2;    /* Morado neón brillante */
+    --color-texto: #ffffff;
+    --texto-secundario: #a0a0a0;
+    --borde-tarjeta: #2a1642;      /* Borde morado oscuro sutil */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--fondo-oscuro);
+    color: var(--color-texto);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Empuja el footer siempre al fondo */
+}
+
+/* --- ENCABEZADO (NAVBAR / HEADER) --- */
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: rgba(9, 3, 15, 0.9);
+    border-bottom: 1px solid var(--borde-tarjeta);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-img {
+    height: 45px;
+    width: auto;
+}
+
+#logo-texto {
+    font-size: 20px;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+/* Botón Volver de la esquina */
+.btn-volver {
+    color: var(--texto-secundario);
+    text-decoration: none;
+    font-size: 14px;
+    border: 1px solid var(--borde-tarjeta);
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-volver:hover {
+    color: white;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+}
+
+/* --- CONTENEDOR PRINCIPAL Y TARJETA --- */
+#contenedor-login {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    /* Un ligero degradado radial de fondo para dar atmósfera */
+    background-image: radial-gradient(circle, #160829 0%, transparent 70%);
+}
+
+.tarjeta-login {
+    background-color: var(--fondo-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    padding: 40px 30px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 420px; /* Evita que la tarjeta se estire demasiado en PC */
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: border-color 0.3s ease;
+}
+
+/* Efecto focus en la tarjeta cuando el usuario interactúa */
+.tarjeta-login:focus-within {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
+}
+
+.tarjeta-login h2 {
+    font-size: 26px;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.tarjeta-login > p {
+    color: var(--texto-secundario);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+/* --- FORMULARIO E INPUTS --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.grupo-input {
+    text-align: left; /* Alinea los labels a la izquierda */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.grupo-input label {
+    font-size: 13px;
+    color: var(--texto-secundario);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.grupo-input input {
+    background-color: rgba(9, 3, 15, 0.6);
+    border: 1px solid var(--borde-tarjeta);
+    color: white;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Cuando el usuario hace clic para escribir en la cajita */
+.grupo-input input:focus {
+    border-color: var(--color-primario);
+    background-color: rgba(9, 3, 15, 0.9);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+}
+
+/* Estilo para los placeholders (el texto de ejemplo interno) */
+.grupo-input input::placeholder {
+    color: #555060;
+}
+
+/* --- BOTÓN DE ENTRAR --- */
+.btn-primario {
+    background-color: var(--color-primario);
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    box-shadow: 0 0 15px var(--color-primario);
+    transition: all 0.3s ease;
+}
+
+.btn-primario:hover {
+    box-shadow: 0 0 25px var(--color-primario);
+    transform: scale(1.02); /* Crece un pelín al pasar el mouse */
+}
+
+/* --- LINK DE REGISTRO EN LA PARTE INFERIOR --- */
+.texto-registro {
+    margin-top: 15px;
+    font-size: 14px;
+    color: var(--texto-secundario);
+}
+
+.texto-registro a {
+    color: var(--color-primario);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.texto-registro a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* --- FOOTER --- */
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid var(--borde-tarjeta);
+    color: var(--texto-secundario);
+    font-size: 12px;
+}
+
+/* =========================================
+   📱 RESPONSIVE DESIGN (Para celulares)
+   ========================================= */
+@media (max-width: 600px) {
+    #navbar {
+        padding: 15px 20px;
+    }
+    
+    #logo-texto {
+        font-size: 16px;
+    }
+
+    .btn-volver {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .tarjeta-login {
+        padding: 30px 20px;
+    }
+}

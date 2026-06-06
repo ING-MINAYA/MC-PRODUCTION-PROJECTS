@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda | MC PRODUCTIONS</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    
+    <nav id="navbar">
+        <div class="logo-container">
+            <img src="/assets/img/logo.png" alt="Logo MC" class="logo-img">
+            <h1 id="logo-texto">MC PRODUCTIONS</h1>
+        </div>
+
+        <i class='bx bx-menu' id="icono-menu" style="font-size: 35px; color: white; cursor: pointer; display: none;"></i>
+        
+        <ul id="menu">
+            <li><a href="/index.html">INICIO</a></li>
+            <li><a href="/assets/pages/tienda.html" style="color: #8a2be2">TIENDA</a></li>
+            <li><a href="/index.html#contacto">CONTACTO</a></li>
+            <li><a href="/assets/pages/login.html">LOGIN</a></li>
+            <li>
+                <a href="/assets/pages/carrito.html" class="btn-carrito">
+                    <i class='bx bx-cart'></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main id="contenedor">
+        
+        <section class="cabecera-catalogo">
+            <h1>CATÁLOGO COMPLETO</h1>
+            <p>Explora todos nuestros beats, álbumes y licencias exclusivas.</p>
+            
+            <div class="filtros-catalogo">
+                <button class="btn-primario">TODO</button>
+                <button class="btn-secundario">ÁLBUMES</button>
+                <button class="btn-secundario">SINGLE</button>
+            </div>
+        </section>
+
+        <section id="tienda">
+            <div class="grid-albumes">
+                
+                <div class="tienda-vacia" style="text-align: center; grid-column: 1 / -1; padding: 50px;">
+                    <i class='bx bx-music' style="font-size: 50px; color: var(--texto-secundario); margin-bottom: 15px;"></i>
+                    <h3 style="color: var(--texto-secundario);">Próximamente nueva música...</h3>
+                    <p style="color: var(--texto-secundario); margin-top: 10px;">El catálogo se está actualizando.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MC Productions. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="../js/script.js?v=2.0"></script>
+</body>
+</html>

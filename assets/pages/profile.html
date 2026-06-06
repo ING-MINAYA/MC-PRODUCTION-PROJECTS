@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | MC PRODUCTIONS</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/assets/css/style.css"> </head>
+<body style="background-color: #09030f; color: white; font-family: sans-serif;">
+    
+    <header id="navbar" style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="logo-container" style="display: flex; align-items: center; gap: 10px;">
+            <img src="/assets/img/logo.png" alt="Logo MC" style="height: 40px;">
+            <h1 style="font-size: 20px;">MC PRODUCTIONS</h1>
+        </div>
+        <a href="/index.html" style="color: #8a2be2; text-decoration: none; font-weight: bold;"><i class='bx bx-store'></i> Volver a la Tienda</a>
+    </header>
+
+    <main style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px;">
+        <section style="background: #111; border: 1px solid #8a2be2; border-radius: 15px; padding: 40px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);">
+            
+            <div style="position: relative; width: 100px; height: 100px; margin: 0 auto 20px;">
+                <img id="perfil-img" src="https://ui-avatars.com/api/?name=User&background=8a2be2&color=fff&size=100" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid #8a2be2; object-fit: cover; background: rgba(138, 43, 226, 0.2);">
+                
+                <label for="input-avatar" style="position: absolute; bottom: 0; right: -5px; background: #8a2be2; color: black; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 3px solid #111; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: transform 0.2s;">
+                    <i class='bx bxs-camera'></i>
+                </label>
+                <input type="file" id="input-avatar" accept="image/*" style="display: none;">
+            </div>
+
+            <h2 id="perfil-nombre" style="margin-bottom: 5px;">Cargando...</h2>
+            <p id="perfil-correo" style="color: gray; font-size: 14px; margin-bottom: 20px;">cargando@correo.com</p>
+
+            <div style="background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); padding: 15px; border-radius: 10px; margin-bottom: 25px;">
+                <p style="font-size: 14px; color: gray;">Música en mi Bóveda</p>
+                <h3 id="perfil-tracks" style="color: #8a2be2; font-size: 24px; margin-top: 5px;">0 Tracks</h3>
+            </div>
+
+            <p style="font-size: 12px; color: gray; margin-bottom: 25px;">Miembro desde: <span id="perfil-fecha">--/--/----</span></p>
+
+            <a href="biblioteca.html" style="display: block; background: #8a2be2; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 15px;">
+               <i class='bx bx-music'></i> MI BIBLIOTECA
+            </a>
+            
+            <button id="btn-abrir-password" style="background: transparent; color: #8a2be2; border: 1px solid #8a2be2; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 15px;">
+                <i class='bx bx-lock-alt'></i> Cambiar Contraseña
+            </button>
+
+            <button id="btn-cerrar-sesion" style="background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class='bx bx-log-out'></i> Cerrar Sesión
+            </button>
+
+
+
+        </section>
+    </main>
+
+    <div id="modal-password" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #111; padding: 30px; border-radius: 10px; border: 1px solid #8a2be2; width: 90%; max-width: 350px; color: white;">
+            <h3 style="text-align: center; margin-bottom: 20px;"><i class='bx bx-lock-open-alt' style="color: #8a2be2;"></i> Nueva Contraseña</h3>
+            
+            <input type="password" id="pass-actual" placeholder="Contraseña actual" style="width: 100%; padding: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border: 1px solid gray; color: white; border-radius: 5px;">
+            <input type="password" id="pass-nueva" placeholder="Nueva contraseña (Mín. 6)" style="width: 100%; padding: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border: 1px solid gray; color: white; border-radius: 5px;">
+            <input type="password" id="pass-confirmar" placeholder="Repite la nueva contraseña" style="width: 100%; padding: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); border: 1px solid gray; color: white; border-radius: 5px;">
+            
+            <button id="btn-guardar-password" style="background: #8a2be2; color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; margin-bottom: 10px;">Guardar Cambios</button>
+            <button id="btn-cerrar-modal-pass" style="background: transparent; color: gray; border: none; width: 100%; cursor: pointer; text-decoration: underline;">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="../js/script.js?v=2.0"></script>
+</body>
+</html>

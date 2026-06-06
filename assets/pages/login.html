@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | MC PRODUCTIONS</title>
+    <!-- Agregamos Boxicons para el ojito de la contraseña -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/assets/css/login.css">
+</head>
+<body>
+    
+    <header id="navbar">
+        <div class="logo-container">
+            <img src="/assets/img/logo.png" alt="Logo MC" class="logo-img">
+            <h1 id="logo-texto">MC PRODUCTIONS</h1>
+        </div>
+        <a href="/index.html" class="btn-volver" style="color: var(--texto-secundario); text-decoration: none;">Volver al inicio</a>
+    </header>
+
+    <main id="contenedor-login">
+        <section class="tarjeta-login">
+            <h2>INICIAR SESIÓN</h2>
+            <p>Accede a tu música exclusiva.</p>
+
+            <form id="form-login" class="formulario-auth">
+    
+    <div class="grupo-input">
+        <label for="login-identificador">Usuario o Correo Electrónico</label>
+        <input type="text" id="login-identificador" placeholder="Tu nombre de usuario o tu@correo.com" required>
+    </div>
+    
+    <div class="grupo-input">
+        <label for="login-password">Contraseña</label>
+        <input type="password" id="login-password" placeholder="Tu contraseña" required>
+    </div>
+    
+    <p id="mensaje-error-login" style="color: #ff4d4d; font-size: 14px; text-align: center; display: none; margin-top: -10px; margin-bottom: 15px; font-weight: bold;"></p>
+
+    <button type="submit" class="btn-primario" style="width: 100%;">ENTRAR</button>
+    
+    <p class="texto-registro">¿No tienes cuenta? <a href="register.html" style="color: #8a2be2;">Regístrate aquí</a></p>
+</form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MC Productions. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="../js/script.js?v=2.0"></script>
+</body>
+</html>
