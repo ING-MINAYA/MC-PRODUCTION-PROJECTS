@@ -606,7 +606,7 @@ if (formRegistro) {
         btnSubmit.style.opacity = '0.7';
         btnSubmit.style.pointerEvents = 'none';
 
-        setTimeout(() => { window.location.href = "login.html"; }, 1500);
+        setTimeout(() => { window.location.href = "/assets/pages/login.html"; }, 1500);
     });
 }
 
@@ -633,7 +633,7 @@ if (formLogin) {
             alert("👨‍💻 Bienvenido a la cabina de mando, Jefe.");
             
             // Ruta directa porque admin.html y login.html son vecinos en 'pages'
-            window.location.href = 'admin.html'; 
+            window.location.href = '/assets/pages/admin.html'; 
             return; 
         }
 
@@ -1157,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`✅ ¡Qué bueno verte de nuevo, ${usuarioEncontrado.nombre}!`);
             
             // 👇 ESTA ES LA LÍNEA QUE CAMBIAS 👇
-            window.location.href = 'tienda.html'; 
+            window.location.href = '/assets/pages/tienda.html'; 
         });
     }
 });
