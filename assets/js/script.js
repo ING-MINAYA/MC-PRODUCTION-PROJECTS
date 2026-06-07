@@ -626,16 +626,16 @@ if (formLogin) {
         const email = inputCorreo.value.trim().toLowerCase();
         const password = inputClave.value;
 
-        // 🔥 PUERTA SECRETA DEL ADMINISTRADOR 🔥
-        // Acepta "admin_mc" o "admin@mc.com"
-        if ((email === "admin_mc" || email === "admin@mc.com") && password === "Jefe2026*") {
-            localStorage.setItem('admin_mc_activo', 'true');
-            alert("👨‍💻 Bienvenido a la cabina de mando, Jefe.");
+        // // 🔥 PUERTA SECRETA DEL ADMINISTRADOR 🔥
+        // // Acepta "admin_mc" o "admin@mc.com"
+        // if ((email === "admin_mc" || email === "admin@mc.com") && password === "Jefe2026*") {
+        //     localStorage.setItem('admin_mc_activo', 'true');
+        //     alert("👨‍💻 Bienvenido a la cabina de mando, Jefe.");
             
-            // Ruta directa porque admin.html y login.html son vecinos en 'pages'
-            window.location.href = '/assets/pages/admin.html'; 
-            return; 
-        }
+        //     // Ruta directa porque admin.html y login.html son vecinos en 'pages'
+        //     window.location.href = '/assets/pages/admin.html'; 
+        //     return; 
+        // }
 
         // ==========================================
         // TU CÓDIGO NORMAL PARA CLIENTES
