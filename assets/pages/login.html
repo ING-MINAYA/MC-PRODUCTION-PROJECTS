@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | MC PRODUCTIONS</title>
+    <title>Iniciar Sesión | MCE PRODUCTIONS</title>
     <!-- Agregamos Boxicons para el ojito de la contraseña -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/assets/css/login.css">
@@ -13,7 +13,7 @@
     <header id="navbar">
         <div class="logo-container">
             <img src="/assets/img/logo.png" alt="Logo MC" class="logo-img">
-            <h1 id="logo-texto">MC PRODUCTIONS</h1>
+            <h1 id="logo-texto">MCE PRODUCTIONS</h1>
         </div>
         <a href="/index.html" class="btn-volver" style="color: var(--texto-secundario); text-decoration: none;">Volver al inicio</a>
     </header>
@@ -30,9 +30,11 @@
         <input type="text" id="login-identificador" placeholder="Tu nombre de usuario o tu@correo.com" required>
     </div>
     
-    <div class="grupo-input">
+    <div class="grupo-input" style="position: relative;">
         <label for="login-password">Contraseña</label>
-        <input type="password" id="login-password" placeholder="Tu contraseña" required>
+        <input type="password" id="login-password" placeholder="Tu contraseña" required style="padding-right: 40px;">
+        
+        <i class='bx bx-hide' id="toggle-login-password" style="position: absolute; right: 15px; top: 38px; cursor: pointer; font-size: 22px; color: #8a2be2;"></i>
     </div>
     
     <p id="mensaje-error-login" style="color: #ff4d4d; font-size: 14px; text-align: center; display: none; margin-top: -10px; margin-bottom: 15px; font-weight: bold;"></p>
@@ -45,9 +47,9 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 MC Productions. Todos los derechos reservados.</p>
+        <p>&copy; 2026 MCE Productions. Todos los derechos reservados.</p>
     </footer>
 
-    <script src="../js/script.js?v=2.0"></script>
+    <script type="module" src="/assets/js/script.js?v=3.0"></script>
 </body>
 </html>

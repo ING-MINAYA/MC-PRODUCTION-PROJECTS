@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | MC PRODUCTIONS</title>
+    <title>Admin Dashboard | MCE PRODUCTIONS</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/login.css">
@@ -27,12 +27,12 @@
                 
                 <div class="grupo-input">
                     <label for="titulo-track">Título de la Canción / Álbum</label>
-                    <input type="text" id="titulo-track" placeholder="Ej. ALBUME/SINGER" required>
+                    <input type="text" id="titulo-track" placeholder="Ej. LA NOVENA" required>
                 </div>
 
                 <div class="grupo-input">
                     <label for="artista-track">Nombre del Artista</label>
-                    <input type="text" id="artista-track" placeholder="Ej. ARTIST" required>
+                    <input type="text" id="artista-track" placeholder="Ej. ELADIO CARRION" required>
                 </div>
 
                 <div class="grupo-input">
@@ -82,7 +82,7 @@
         </section>
     </main>
 
-   <script src="../js/script.js?v=2.0"></script>
+   <script type="module" src="/assets/js/script.js?v=3.0"></script>
 </body>
 
 <script>
@@ -92,7 +92,7 @@
     if (isAdmin !== 'true') {
         alert("🔒 Acceso denegado. Debes iniciar sesión como Administrador.");
         // Al estar en la misma carpeta 'pages', lo mandamos directo a login.html sin barras
-        window.location.href = '/assets/pages/login.html';
+        window.location.href = 'login.html';
     }
 
     // Función para destruir la llave maestra y salir

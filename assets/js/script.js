@@ -1,3 +1,28 @@
+
+// ==========================================
+// 🚀 CONEXIÓN A FIREBASE (BASE DE DATOS EN LA NUBE)
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-storage.js";
+
+// ... (Aquí dejas la configuración "firebaseConfig" exactamente igual a como la tienes) ...
+const firebaseConfig = {
+    apiKey: "AIzaSyCe18DBeoTAo4VLcaDltvBG2WJdtljIRVQ",
+    authDomain: "mc-productions-bbb58.firebaseapp.com",
+    projectId: "mc-productions-bbb58",
+    storageBucket: "mc-productions-bbb58.firebasestorage.app",
+    messagingSenderId: "397778540670",
+    appId: "1:397778540670:web:e463876e5133347542602f"
+};
+
+// Inicializamos los superpoderes
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
+
 // ==========================================
 // 1. MENÚ MÓVIL (Hamburguesa) MEJORADO
 // ==========================================
@@ -122,15 +147,15 @@ function agregarAlCarrito(producto) {
         return; 
     } 
 
-    // 🚀 Creamos una copia ligera sin el MP3
+    // 🚀 Creamos una copia ligera para el carrito
     const productoLigero = {
-    id: producto.id,
-    titulo: producto.titulo,
-    artista: producto.artista,
-    precio: parseFloat(producto.precio), // Aseguramos que sea un número
-    categoria: producto.categoria
-    // 🚫 MIRA CÓMO NO PONEMOS NI 'img' NI 'audio' AQUÍ ADENTRO 🚫
-};
+        id: producto.id,
+        titulo: producto.titulo,
+        artista: producto.artista,
+        precio: parseFloat(producto.precio), 
+        categoria: producto.categoria,
+        img: producto.img // 🔥 ¡AÑADIMOS LA IMAGEN DE VUELTA! Ahora es un link súper ligero
+    };
 
     carrito.push(productoLigero);
 
@@ -169,12 +194,20 @@ function actualizarPantallaCarrito() {
         const precioNumero = parseFloat(String(item.precio).replace('$', ''));
         totalDinero += precioNumero;
 
+        // Por si alguna canción vieja no tiene categoría, evitamos que salga en blanco
+        const etiquetaCategoria = item.categoria ? item.categoria : 'SINGLE';
+
         contenedorCarrito.innerHTML += `
             <article class="item-carrito" data-index="${index}">
-                <img src="${item.img}" alt="Album">
+                <img src="${item.img || ''}" alt="Portada" style="width: 55px; height: 55px; object-fit: cover; border-radius: 5px; border: 1px solid rgba(138, 43, 226, 0.3);">
                 <div class="info-carrito">
                     <h3>${item.titulo}</h3>
-                    <p>${item.artista}</p>
+                    <p style="display: flex; align-items: center; gap: 8px;">
+                        ${item.artista} 
+                        <span style="font-size: 9px; background: rgba(138, 43, 226, 0.2); padding: 3px 6px; border-radius: 4px; border: 1px solid #8a2be2; color: white; font-weight: bold; letter-spacing: 1px;">
+                            ${etiquetaCategoria}
+                        </span>
+                    </p>
                 </div>
                 <p class="precio-carrito">$${item.precio}</p>
                 <button class="btn-eliminar"><i class='bx bx-trash' style="font-size: 20px;"></i></button>
@@ -305,109 +338,122 @@ if (formPago) {
 }
 
 // ==========================================
-// 5. MOTOR DE LA TIENDA (Dibuja los productos)
+// 🛒 5. MOTOR DE LA TIENDA - FIREBASE CLOUD
 // ==========================================
 const contenedorTienda = document.querySelector('.grid-albumes');
 
 if (contenedorTienda) {
     async function cargarTienda() {
         try {
-            const db = await abrirBaseDeDatos();
-            const transaccion = db.transaction([storeName], "readonly");
-            const almacen = transaccion.objectStore(storeName);
-            const peticion = almacen.getAll(); 
+            contenedorTienda.innerHTML = '<p style="color: #8a2be2; text-align: center; width: 100%; grid-column: 1 / -1;">⏳ Conectando con los servidores de MC Productions...</p>';
+            
+            // --- CONEXIÓN DIRECTA A LA NUBE ---
+            const querySnapshot = await getDocs(collection(db, "catalogo_musica"));
+            contenedorTienda.innerHTML = ''; 
 
-            peticion.onsuccess = () => {
-                const canciones = peticion.result;
+            if (querySnapshot.empty) {
+                contenedorTienda.innerHTML = '<p style="color: gray; text-align: center; width: 100%; grid-column: 1 / -1;">El catálogo está vacío por el momento.</p>';
+                return;
+            }
 
-                if (canciones.length > 0) {
-                    contenedorTienda.innerHTML = ''; 
-                }
+            // --- LEER Y DIBUJAR CADA CANCIÓN ---
+            querySnapshot.forEach(documento => {
+                const track = documento.data();
+                track.id = documento.id; // Le pegamos el ID de Firebase para el carrito
 
-                canciones.forEach(track => {
-                    const articulo = document.createElement('article');
-                    articulo.classList.add('album');
-                    articulo.setAttribute('data-categoria', track.categoria); 
-                    
-                    // --- CEREBRO DIGITAL: DISCRIMINADOR DE DISEÑO ---
-                    let bloqueAudioHTML = '';
-                    
-                    if (track.categoria === 'ALBUMES' && Array.isArray(track.audio)) {
-                        // DISEÑO PREMIUM ESTILO PLAYLIST (SPOTIFY/APPLE MUSIC)
-                        bloqueAudioHTML = `
-                            <div class="tracklist-contenedor" style="margin-top: 15px; margin-bottom: 15px; text-align: left; background: rgba(9, 3, 15, 0.6); padding: 12px; border-radius: 8px; border: 1px solid var(--borde-tarjeta); max-height: 180px; overflow-y: auto;">
-                        `;
-                        
-                        track.audio.forEach((pista, index) => {
-                            bloqueAudioHTML += `
-                                <div class="track-row" style="margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                                    <p style="font-size: 12px; color: #ffffff; margin-bottom: 5px; font-weight: 500; font-family: sans-serif;">
-                                        <span style="color: var(--color-primario); font-weight: bold;">${index + 1}.</span> ${pista.tituloPista}
-                                    </p>
-                                    <audio controls controlsList="nodownload" oncontextmenu="return false;" src="${pista.base64}" style="width: 100%; height: 28px;"></audio>
-                                </div>
-                            `;
-                        });
-                        
-                        bloqueAudioHTML += `</div>`;
-                    } else {
-                        // DISEÑO TRADICIONAL PARA SINGLES
-                        const audioSrc = typeof track.audio === 'string' ? track.audio : (track.audio && track.audio[0] ? track.audio[0].base64 : '');
-                        bloqueAudioHTML = `
-                            <audio controls controlsList="nodownload" oncontextmenu="return false;" src="${audioSrc}" style="width: 100%; margin-top: 10px; margin-bottom: 10px;"></audio>
-                        `;
-                    }
-                    
-                    // Inyectamos la estructura final en la tarjeta
-                    articulo.innerHTML = `
-                        <img src="${track.img}" alt="Portada de ${track.titulo}">
-                        <h4>${track.artista}</h4>
-                        <p>${track.titulo} <span style="font-size: 11px; color: var(--color-primario);">[${track.categoria}]</span></p>
-                        
-                        ${bloqueAudioHTML}
-                        
-                        <p class="precio">$${track.precio}</p>
-                        <button class="btn-comprar">AGREGAR AL CARRITO</button>
+                const articulo = document.createElement('article');
+                articulo.classList.add('album');
+                articulo.setAttribute('data-categoria', track.categoria); 
+                
+                // --- CEREBRO DIGITAL: DISCRIMINADOR DE DISEÑO ---
+                let bloqueAudioHTML = '';
+                
+                if (track.categoria === 'ALBUMES' && Array.isArray(track.audio)) {
+                    // DISEÑO PREMIUM ESTILO PLAYLIST (SPOTIFY/APPLE MUSIC)
+                    bloqueAudioHTML = `
+                        <div class="tracklist-contenedor" style="margin-top: 15px; margin-bottom: 15px; text-align: left; background: rgba(9, 3, 15, 0.6); padding: 12px; border-radius: 8px; border: 1px solid var(--borde-tarjeta); max-height: 180px; overflow-y: auto;">
                     `;
                     
-                    contenedorTienda.appendChild(articulo);
-
-                    const btnComprar = articulo.querySelector('.btn-comprar');
-                    btnComprar.addEventListener('click', () => {
-                        agregarAlCarrito(track); 
-                        
-                        const textoOriginal = btnComprar.textContent;
-                        btnComprar.textContent = '¡AGREGADO!';
-                        btnComprar.style.backgroundColor = 'var(--color-primario)';
-                        btnComprar.style.color = 'white';
-                        setTimeout(() => {
-                            btnComprar.textContent = textoOriginal;
-                            btnComprar.style.backgroundColor = 'transparent';
-                        }, 2000);
+                    track.audio.forEach((pista, index) => {
+                        bloqueAudioHTML += `
+                            <div class="track-row" style="margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                <p style="font-size: 12px; color: #ffffff; margin-bottom: 5px; font-weight: 500; font-family: sans-serif;">
+                                    <span style="color: var(--color-primario); font-weight: bold;">${index + 1}.</span> ${pista.tituloPista}
+                                </p>
+                                <audio controls controlsList="nodownload" oncontextmenu="return false;" src="${pista.url}" style="width: 100%; height: 28px;"></audio>
+                            </div>
+                        `;
                     });
-                });
-
-                // --- TUS FUNCIONES VITALES INTACTAS ---
-                if (typeof activarFiltrosTienda === 'function') {
-                    activarFiltrosTienda();
+                    
+                    bloqueAudioHTML += `</div>`;
+                } else {
+                    // DISEÑO TRADICIONAL PARA SINGLES
+                    // Ahora track.audio es un link directo de Firebase (String)
+                    const audioSrc = track.audio; 
+                    bloqueAudioHTML = `
+                        <audio controls controlsList="nodownload" oncontextmenu="return false;" src="${audioSrc}" style="width: 100%; margin-top: 10px; margin-bottom: 10px;"></audio>
+                    `;
                 }
+                
+                // Inyectamos la estructura final en la tarjeta
+                articulo.innerHTML = `
+                    <img src="${track.img}" alt="Portada de ${track.titulo}">
+                    <h4>${track.artista}</h4>
+                    <p>${track.titulo} <span style="font-size: 11px; color: var(--color-primario);">[${track.categoria}]</span></p>
+                    
+                    ${bloqueAudioHTML}
+                    
+                    <p class="precio">$${track.precio}</p>
+                    <button class="btn-comprar">AGREGAR AL CARRITO</button>
+                `;
+                
+                contenedorTienda.appendChild(articulo);
 
-                const nuevosAudios = document.querySelectorAll('audio');
-                nuevosAudios.forEach(audio => {
-                    audio.addEventListener('play', () => {
-                        nuevosAudios.forEach(otro => { if (otro !== audio) otro.pause(); });
-                    });
-                    audio.addEventListener('timeupdate', () => {
-                        if (audio.currentTime >= 30) {
-                            audio.pause();           
-                            audio.currentTime = 0;   
-                            mostrarAlertaElegante("¡Preview finalizado! Agrega el track al carrito.");
-                        }
-                    });
+                // --- LÓGICA DEL BOTÓN COMPRAR ---
+                const btnComprar = articulo.querySelector('.btn-comprar');
+                btnComprar.addEventListener('click', () => {
+                    agregarAlCarrito(track); 
+                    
+                    const textoOriginal = btnComprar.textContent;
+                    btnComprar.textContent = '¡AGREGADO!';
+                    btnComprar.style.backgroundColor = 'var(--color-primario)';
+                    btnComprar.style.color = 'white';
+                    setTimeout(() => {
+                        btnComprar.textContent = textoOriginal;
+                        btnComprar.style.backgroundColor = 'transparent';
+                    }, 2000);
                 });
-            };
+            });
+
+            // --- TUS FUNCIONES VITALES INTACTAS ---
+            if (typeof activarFiltrosTienda === 'function') {
+                activarFiltrosTienda();
+            }
+
+            // Sistema Anti-Piratería y Anti-Superposición
+            const nuevosAudios = document.querySelectorAll('audio');
+            nuevosAudios.forEach(audio => {
+                audio.addEventListener('play', () => {
+                    // Pausa los demás
+                    nuevosAudios.forEach(otro => { if (otro !== audio) otro.pause(); });
+                });
+                audio.addEventListener('timeupdate', () => {
+                    // Limita a 30 segundos
+                    if (audio.currentTime >= 30) {
+                        audio.pause();           
+                        audio.currentTime = 0;   
+                        if (typeof mostrarAlertaElegante === 'function') {
+                            mostrarAlertaElegante("¡Preview finalizado! Agrega el track al carrito.");
+                        } else {
+                            alert("¡Preview finalizado! Agrega el track al carrito.");
+                        }
+                    }
+                });
+            });
+
         } catch (error) {
-            console.error("Error al cargar la tienda:", error);
+            console.error("Error al cargar la tienda desde Firebase:", error);
+            contenedorTienda.innerHTML = '<p style="color: red; text-align: center; width: 100%; grid-column: 1 / -1;">❌ Error de conexión. No se pudo cargar el catálogo.</p>';
         }
     }
 
@@ -444,7 +490,7 @@ function activarFiltrosTienda() {
 }
 
 // ==========================================
-// 6. PANEL DE ADMINISTRADOR (admin.html)
+// 🚀 6. PANEL DE ADMINISTRADOR (admin.html) - MOTOR FIREBASE
 // ==========================================
 const formAdmin = document.getElementById('form-admin');
 const mensajeAdmin = document.getElementById('mensaje-admin');
@@ -460,79 +506,115 @@ if (formAdmin) {
         const precio = document.getElementById('precio-track').value;
         
         const archivoImg = document.getElementById('img-track').files[0];
-        // AQUÍ EL CAMBIO 1: Agarramos TODOS los archivos, no solo el [0]
         const archivosAudio = document.getElementById('audio-track').files;
 
+        if (!archivoImg || archivosAudio.length === 0) {
+            if (mensajeAdmin) {
+                mensajeAdmin.textContent = "❌ Debes seleccionar la portada y el archivo de audio.";
+                mensajeAdmin.style.color = "#ff4d4d";
+                mensajeAdmin.style.display = "block";
+            }
+            return;
+        }
+
         try {
-            botonSubmit.textContent = 'PROCESANDO ARCHIVOS...';
+            // Animación de carga Premium
+            botonSubmit.textContent = '🚀 SUBIENDO A SERVIDORES...';
             botonSubmit.style.pointerEvents = 'none';
             botonSubmit.style.opacity = '0.7';
-
-            const base64Img = await leerArchivoComoURL(archivoImg);
             
-            // AQUÍ EL CAMBIO 2: Creamos el "Empacador" inteligente
+            if (mensajeAdmin) {
+                mensajeAdmin.textContent = "⏳ Subiendo archivos a la nube, por favor espera...";
+                mensajeAdmin.style.color = "#8a2be2";
+                mensajeAdmin.style.display = "block";
+            }
+
+            // --- FASE A: SUBIR PORTADA A FIREBASE STORAGE ---
+            const nombreUnicoImg = `${Date.now()}_${archivoImg.name}`;
+            const referenciaImg = ref(storage, `portadas/${nombreUnicoImg}`);
+            await uploadBytes(referenciaImg, archivoImg);
+            const urlImagenOficial = await getDownloadURL(referenciaImg);
+            
+            // --- FASE B: SUBIR AUDIO(S) A FIREBASE STORAGE ---
             let datosAudio; 
 
             if (categoria === 'ALBUMES') {
-                // Si es un álbum, empacamos todas las canciones en una lista
+                // Si es un álbum, subimos todas las canciones y guardamos sus links en una lista
                 datosAudio = [];
                 for (let i = 0; i < archivosAudio.length; i++) {
                     const archivo = archivosAudio[i];
-                    const base64 = await leerArchivoComoURL(archivo);
+                    const nombreUnicoAudio = `${Date.now()}_${archivo.name}`;
+                    const referenciaAudio = ref(storage, `canciones/${nombreUnicoAudio}`);
                     
-                    // Guardamos el nombre de la canción (quitándole el .mp3 del final)
+                    // Subir archivo individual
+                    await uploadBytes(referenciaAudio, archivo);
+                    const urlAudioOficial = await getDownloadURL(referenciaAudio);
+
+                    // Limpiar el nombre (quitar .mp3)
                     const nombrePista = archivo.name.replace(/\.[^/.]+$/, ""); 
 
                     datosAudio.push({
-                        tituloPista: nombrePista,
-                        base64: base64
+                        tituloPista: nombrePista.toUpperCase(),
+                        url: urlAudioOficial
                     });
                 }
             } else {
-                // Si es single, lo guardamos normal como texto para no dañar los viejos
-                datosAudio = await leerArchivoComoURL(archivosAudio[0]);
+                // Si es single, subimos solo la primera canción
+                const archivoUnico = archivosAudio[0];
+                const nombreUnicoAudio = `${Date.now()}_${archivoUnico.name}`;
+                const referenciaAudio = ref(storage, `canciones/${nombreUnicoAudio}`);
+                
+                await uploadBytes(referenciaAudio, archivoUnico);
+                datosAudio = await getDownloadURL(referenciaAudio);
             }
 
+            // --- FASE C: GUARDAR PRODUCTO EN FIRESTORE (NUBE) ---
             const nuevoProducto = {
-                id: "track_" + Date.now(),
                 titulo: titulo.toUpperCase(),
                 artista: artista.toUpperCase(),
                 categoria: categoria,
                 precio: parseFloat(precio).toFixed(2),
-                img: base64Img,
-                audio: datosAudio // Ahora esto puede ser 1 canción o una lista entera de 15 canciones
+                img: urlImagenOficial,
+                audio: datosAudio, // Puede ser el link directo (string) o la lista de canciones (array)
+                fechaPublicacion: serverTimestamp() // Fecha del servidor de Google
             };
 
-            const db = await abrirBaseDeDatos();
-            const transaccion = db.transaction([storeName], "readwrite");
-            const almacen = transaccion.objectStore(storeName);
-            almacen.add(nuevoProducto);
+            // Guardamos en la colección oficial de tu catálogo
+            await addDoc(collection(db, "catalogo_musica"), nuevoProducto);
 
-            transaccion.oncomplete = () => {
-                mensajeAdmin.textContent = "¡Track/Álbum subido con éxito a la base de datos!";
-                mensajeAdmin.style.color = "#8a2be2";
+            // Éxito absoluto
+            if (mensajeAdmin) {
+                mensajeAdmin.textContent = "✅ ¡Track/Álbum publicado con éxito en la nube de Firebase!";
+                mensajeAdmin.style.color = "#28a745";
                 mensajeAdmin.style.display = "block";
-                formAdmin.reset();
+            }
+            
+            formAdmin.reset();
 
-                if(typeof cargarTracksAdmin === 'function') cargarTracksAdmin();
-                
-                // Reiniciar el botón de subir archivos a su estado normal por seguridad
-                const inputAudio = document.getElementById('audio-track');
-                inputAudio.removeAttribute('multiple');
-                const textoMultiples = document.getElementById('texto-multiples');
-                if(textoMultiples) textoMultiples.style.display = 'none';
-            };
+            // Llamar al actualizador visual de la lista si existe
+            if (typeof cargarTracksAdmin === 'function') cargarTracksAdmin();
+            
+            // Apagar la opción múltiple del input por seguridad
+            const inputAudio = document.getElementById('audio-track');
+            if (inputAudio) inputAudio.removeAttribute('multiple');
+            
+            const textoMultiples = document.getElementById('texto-multiples');
+            if (textoMultiples) textoMultiples.style.display = 'none';
 
         } catch (error) {
-            console.error(error);
-            mensajeAdmin.textContent = "Error al procesar el archivo.";
-            mensajeAdmin.style.color = "#ff4d4d";
-            mensajeAdmin.style.display = "block";
+            console.error("Error al subir a Firebase:", error);
+            if (mensajeAdmin) {
+                mensajeAdmin.textContent = "❌ Error al procesar o subir los archivos.";
+                mensajeAdmin.style.color = "#ff4d4d";
+                mensajeAdmin.style.display = "block";
+            }
         } finally {
             botonSubmit.textContent = 'PUBLICAR EN LA TIENDA';
             botonSubmit.style.pointerEvents = 'auto';
             botonSubmit.style.opacity = '1';
-            setTimeout(() => { mensajeAdmin.style.display = "none"; }, 4000);
+            setTimeout(() => { 
+                if (mensajeAdmin) mensajeAdmin.style.display = "none"; 
+            }, 5000);
         }
     });
 }
@@ -575,214 +657,241 @@ function configurarOjito(inputId, iconId) {
 
 configurarOjito('password', 'toggle-password');
 configurarOjito('confirmar-password', 'toggle-confirm-password');
+configurarOjito('login-password', 'toggle-login-password');
 
+// ==========================================
+// SISTEMA DE REGISTRO CON FIREBASE
+// ==========================================
 if (formRegistro) {
-    formRegistro.addEventListener('submit', (evento) => {
+    formRegistro.addEventListener('submit', async (evento) => {
         evento.preventDefault();
-        const usuario = document.getElementById('usuario').value;
-        const email = document.getElementById('email').value;
+        
+        const usuario = document.getElementById('usuario').value.trim();
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmar-password').value;
         const btnSubmit = formRegistro.querySelector('button');
 
         if (password !== confirmPassword) {
             mensajeErrorUsuario.textContent = "Las contraseñas no coinciden.";
-            mensajeErrorUsuario.style.display = "block"; return;
+            mensajeErrorUsuario.style.display = "block"; 
+            return;
         }
         if (password.length < 6) {
             mensajeErrorUsuario.textContent = "La contraseña debe tener al menos 6 caracteres.";
-            mensajeErrorUsuario.style.display = "block"; return;
-        }
-        if (usuariosBD.find(user => user.correo === email)) {
-            mensajeErrorUsuario.textContent = "Este correo ya está registrado. Inicia sesión.";
-            mensajeErrorUsuario.style.display = "block"; return;
+            mensajeErrorUsuario.style.display = "block"; 
+            return;
         }
 
-        mensajeErrorUsuario.style.display = "none";
-        usuariosBD.push({ nombre: usuario, correo: email, clave: password });
-        localStorage.setItem('mc_usuarios', JSON.stringify(usuariosBD));
-
-        btnSubmit.textContent = 'CREANDO CUENTA...';
+        btnSubmit.textContent = 'CREANDO CUENTA EN LA NUBE...';
         btnSubmit.style.opacity = '0.7';
         btnSubmit.style.pointerEvents = 'none';
+        mensajeErrorUsuario.style.display = "none";
 
-        setTimeout(() => { window.location.href = "/assets/pages/login.html"; }, 1500);
+        try {
+            // 1. Creamos el usuario en Firebase Authentication
+            const credencial = await createUserWithEmailAndPassword(auth, email, password);
+            const usuarioFirebase = credencial.user;
+
+            // 2. Guardamos sus datos en Firestore Database
+            await setDoc(doc(db, "usuarios", usuarioFirebase.uid), {
+                nombre: usuario,
+                correo: email,
+                rol: "cliente",
+                fechaRegistro: new Date().toISOString()
+            });
+
+            alert("✅ ¡Cuenta creada con éxito! Ahora inicia sesión.");
+            window.location.href = "login.html";
+
+        } catch (error) {
+            btnSubmit.textContent = 'REGISTRARSE';
+            btnSubmit.style.opacity = '1';
+            btnSubmit.style.pointerEvents = 'auto';
+
+            if (error.code === 'auth/email-already-in-use') {
+                mensajeErrorUsuario.textContent = "Este correo ya está registrado. Ve al Login.";
+            } else {
+                mensajeErrorUsuario.textContent = "Error al crear la cuenta: " + error.message;
+            }
+            mensajeErrorUsuario.style.display = "block";
+        }
     });
 }
 
+// ==========================================
+// SISTEMA DE INICIO DE SESIÓN CON FIREBASE
+// ==========================================
+const mensajeErrorLogin = document.getElementById('mensaje-error-login');
+
 if (formLogin) {
-    formLogin.addEventListener('submit', (evento) => {
+    // IMPORTANTE: Si ves otro "formLogin.addEventListener" más arriba o más abajo, ¡BÓRRALO! Solo debe existir este:
+    formLogin.addEventListener('submit', async (evento) => {
         evento.preventDefault();
-        
-        // 1. CONECTAMOS CON LOS IDs REALES DE TU HTML
+
         const inputCorreo = document.getElementById('login-identificador');
         const inputClave = document.getElementById('login-password');
         const btnSubmit = formLogin.querySelector('button');
 
-        // Si por alguna razón no existen en la pantalla, frenamos para no dar error
-        if (!inputCorreo || !inputClave) return; 
+        if (!inputCorreo || !inputClave) return;
 
-        // 2. EXTRAEMOS LO QUE ESCRIBIÓ EL USUARIO
         const email = inputCorreo.value.trim().toLowerCase();
         const password = inputClave.value;
 
-        // 🔥 PUERTA SECRETA DEL ADMINISTRADOR 🔥
-        // Acepta "admin_mc" o "admin@mc.com"
-        if ((email === "admin_mc" || email === "admin@mc.com") && password === "Jefe2026*") {
-            localStorage.setItem('admin_mc_activo', 'true');
-            alert("👨‍💻 Bienvenido a la cabina de mando, Jefe.");
-            
-            // Ruta directa porque admin.html y login.html son vecinos en 'pages'
-            window.location.href = '/assets/pages/admin.html'; 
-            return; 
+        // 🧹 APAGAMOS CUALQUIER ERROR VIEJO AL INSTANTE
+        if (mensajeErrorLogin) {
+            mensajeErrorLogin.style.display = "none";
+            mensajeErrorLogin.textContent = "";
         }
 
-        // ==========================================
-        // TU CÓDIGO NORMAL PARA CLIENTES
-        // ==========================================
-        const usuarioEncontrado = usuariosBD.find(user => 
-            (user.correo || "").toLowerCase() === email || (user.nombre || "").toLowerCase() === email
-        );
+        btnSubmit.textContent = 'VERIFICANDO CREDENCIALES...';
+        btnSubmit.style.opacity = '0.7';
+        btnSubmit.style.pointerEvents = 'none';
 
-        if (!usuarioEncontrado || usuarioEncontrado.clave !== password) {
-            if (mensajeErrorUsuario) {
-                mensajeErrorUsuario.textContent = "Correo o contraseña incorrectos.";
-                mensajeErrorUsuario.style.display = "block"; 
-            } else {
-                alert("Correo o contraseña incorrectos.");
-            }
+        // 👨‍💻 PUERTA SECRETA DEL JEFE (LOCAL)
+        if ((email === "admin_mc" || email === "admin@mc.com") && password === "Jefe2026*") {
+            localStorage.setItem('admin_mc_activo', 'true');
+            localStorage.setItem('mc_tiempo_sesion', Date.now()); // 🔥 AQUÍ ENTRA EL CRONÓMETRO
+            btnSubmit.style.backgroundColor = "#8a2be2";
+            btnSubmit.style.opacity = '1';
+            btnSubmit.textContent = "👨‍💻 ABRIENDO CABINA...";
+            setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
             return;
         }
 
-        if (mensajeErrorUsuario) mensajeErrorUsuario.style.display = "none";
-        
-        // Guardamos las llaves del cliente
-        localStorage.setItem('mc_usuario_activo', JSON.stringify({
-            nombre: usuarioEncontrado.nombre, 
-            correo: usuarioEncontrado.correo,
-            token: "mc_" + Math.random().toString(36).substr(2, 9)
-        }));
-        localStorage.setItem('usuario_mc_activo', usuarioEncontrado.correo);
+        // 🔐 ACCESO PARA CLIENTES EN LA NUBE (FIREBASE)
+        try {
+            const credencial = await signInWithEmailAndPassword(auth, email, password);
+            const usuarioFirebase = credencial.user;
 
-        if (btnSubmit) {
-            btnSubmit.textContent = 'VERIFICANDO...';
-            btnSubmit.style.opacity = '0.7';
-            btnSubmit.style.pointerEvents = 'none';
+            const docRef = doc(db, "usuarios", usuarioFirebase.uid);
+            const docSnap = await getDoc(docRef);
+
+            let nombreUsuario = "Cliente";
+            if (docSnap.exists()) {
+                nombreUsuario = docSnap.data().nombre;
+            }
+
+            // 🎟️ LE DAMOS LOS DOS PASES VIP PARA QUE LA TIENDA NO SE VUELVA LOCA
+            localStorage.setItem('usuario_mc_activo', usuarioFirebase.email);
+            localStorage.setItem('mc_tiempo_sesion', Date.now()); // 🔥 AQUÍ ENTRA EL CRONÓMETRO PARA EL CLIENTE
+            localStorage.setItem('mc_usuario_activo', JSON.stringify({
+                nombre: nombreUsuario, 
+                correo: usuarioFirebase.email,
+                token: "firebase_" + usuarioFirebase.uid // Token moderno
+            }));
+            
+            // Animación Premium
+            btnSubmit.style.backgroundColor = "#28a745"; 
+            btnSubmit.style.opacity = '1';
+            btnSubmit.textContent = `✅ ¡BIENVENIDO, ${nombreUsuario.toUpperCase()}!`;
+            
+            setTimeout(() => { window.location.href = "tienda.html"; }, 1200);
+
+        } catch (error) {
+            btnSubmit.textContent = 'ENTRAR';
+            btnSubmit.style.opacity = '1';
+            btnSubmit.style.pointerEvents = 'auto';
+
+            if (mensajeErrorLogin) {
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    mensajeErrorLogin.textContent = "❌ El correo o la contraseña son incorrectos.";
+                } else {
+                    mensajeErrorLogin.textContent = "❌ Error al conectar: " + error.message;
+                }
+                mensajeErrorLogin.style.display = "block";
+            }
         }
-
-        // Redirige a tienda.html (vecina de login.html)
-        setTimeout(() => { window.location.href = "tienda.html"; }, 1500);
     });
 }
 // ==========================================
-// GESTOR DE ADMINISTRADOR: ELIMINAR TRACKS
+// 👁️ VISOR Y GESTOR DE CATÁLOGO (ADMIN) EN FIREBASE
 // ==========================================
 const listaAdminTracks = document.getElementById('lista-admin-tracks');
+const cabeceraGestor = document.getElementById('cabecera-gestor');
+const iconoDesplegable = document.getElementById('icono-desplegable');
 
+// Función maestra para leer la nube y pintar la lista
 async function cargarTracksAdmin() {
-    if (!listaAdminTracks) return; // Si no estamos en la página admin, ignorar
+    if (!listaAdminTracks) return;
+
+    listaAdminTracks.innerHTML = '<p style="color: #8a2be2; text-align: center; font-weight: bold;">⏳ Conectando con la bóveda de Google...</p>';
 
     try {
-        const db = await abrirBaseDeDatos();
-        const transaccion = db.transaction([storeName], "readonly");
-        const almacen = transaccion.objectStore(storeName);
-        const peticion = almacen.getAll();
+        // Traemos toda la colección de música de una vez
+        const querySnapshot = await getDocs(collection(db, "catalogo_musica"));
+        listaAdminTracks.innerHTML = ''; // Limpiamos el mensaje de carga
 
-        peticion.onsuccess = () => {
-            const canciones = peticion.result;
-            listaAdminTracks.innerHTML = ''; // Limpiamos la lista para no duplicar
+        if (querySnapshot.empty) {
+            listaAdminTracks.innerHTML = '<p style="color: #ff4d4d; text-align: center;">No hay música en la nube todavía.</p>';
+            return;
+        }
 
-            if (canciones.length === 0) {
-                listaAdminTracks.innerHTML = '<p style="color: gray; font-size: 14px;">No hay música subida en la base de datos todavía.</p>';
-                return;
-            }
+        // Leemos cada documento de la base de datos
+        querySnapshot.forEach((documento) => {
+            const track = documento.data();
+            const trackId = documento.id; // El ID encriptado de Google
 
-            // Dibujar cada canción en la lista
-            canciones.forEach(track => {
-                const item = document.createElement('div');
-                item.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);";
-                
-                // Saber si es álbum para mostrar cuántas pistas tiene
-                const esAlbum = track.categoria === 'ALBUMES' && Array.isArray(track.audio);
-                const infoExtra = esAlbum ? `<span style="color: "#8a2be2"; font-size: 11px;">(${track.audio.length} pistas)</span>` : '';
+            // Creamos la tarjeta visual de la canción
+            const div = document.createElement('div');
+            div.style.cssText = "background: rgba(0,0,0,0.4); margin-bottom: 10px; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);";
 
-                item.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <img src="${track.img}" style="width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid var(--color-primario);">
-                        <div>
-                            <p style="margin: 0; font-weight: bold; font-size: 14px; color: white;">${track.titulo} ${infoExtra}</p>
-                            <p style="margin: 0; font-size: 12px; color: #a0a0a0;">${track.artista} - $${track.precio}</p>
-                        </div>
+            div.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="${track.img}" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover; border: 1px solid #8a2be2;">
+                        <h4 style="color: white; margin: 0; font-size: 16px;">${track.titulo}</h4>
+                        <p style="color: #aaa; margin: 5px 0 0 0; font-size: 12px; font-weight: bold;">
+                            ${track.artista} | <span style="color: #28a745;">$${track.precio}</span> | ${track.categoria}
+                        </p>
                     </div>
-                    <button class="btn-eliminar-track" data-id="${track.id}" style="background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s;">
-                        <i class="fas fa-trash"></i> ELIMINAR
-                    </button>
-                `;
-
-                listaAdminTracks.appendChild(item);
-            });
-
-            // Darle el poder de borrar a los botones rojos
-            const botonesEliminar = document.querySelectorAll('.btn-eliminar-track');
-            botonesEliminar.forEach(boton => {
-                boton.addEventListener('click', async (e) => {
-                    const idEliminar = e.target.closest('.btn-eliminar-track').getAttribute('data-id');
-                    
-                    // Pregunta de seguridad antes de borrar
-                    if(confirm('🚨 ¿Estás seguro de que deseas eliminar este track o álbum? Se borrará de la tienda inmediatamente.')) {
-                        await eliminarTrackDeDB(idEliminar);
-                    }
-                });
-            });
-        };
-    } catch (error) {
-        console.error("Error al cargar el gestor:", error);
-    }
-}
-
-async function eliminarTrackDeDB(id) {
-    try {
-        const db = await abrirBaseDeDatos();
-        const transaccion = db.transaction([storeName], "readwrite");
-        const almacen = transaccion.objectStore(storeName);
-        
-        const peticion = almacen.delete(id);
-        
-        peticion.onsuccess = () => {
-            cargarTracksAdmin(); // Recargar la lista visual al instante
-            alert("✅ Eliminado correctamente de la base de datos.");
-        };
-    } catch (error) {
-        console.error("Error al intentar eliminar:", error);
-    }
-}
-
-// Ejecutar automáticamente cuando cargue la página
-document.addEventListener('DOMContentLoaded', cargarTracksAdmin);
-
-// --- LÓGICA DEL MENÚ DESPLEGABLE DEL GESTOR ---
-document.addEventListener('DOMContentLoaded', () => {
-    const cabeceraGestor = document.getElementById('cabecera-gestor');
-    const listaAdminTracksContenedor = document.getElementById('lista-admin-tracks');
-    const iconoDesplegable = document.getElementById('icono-desplegable');
-
-    if (cabeceraGestor && listaAdminTracksContenedor && iconoDesplegable) {
-        cabeceraGestor.addEventListener('click', () => {
-            // Si está oculto, lo mostramos y giramos la flecha
-            if (listaAdminTracksContenedor.style.display === 'none') {
-                listaAdminTracksContenedor.style.display = 'block';
-                iconoDesplegable.style.transform = 'rotate(180deg)';
-            } else {
-                // Si está visible, lo ocultamos y volvemos la flecha a su lugar
-                listaAdminTracksContenedor.style.display = 'none';
-                iconoDesplegable.style.transform = 'rotate(0deg)';
-            }
+                </div>
+                <button class="btn-eliminar-admin" data-id="${trackId}" style="background: #ff4d4d; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s;">🗑️ ELIMINAR</button>
+            `;
+            listaAdminTracks.appendChild(div);
         });
+
+        // 🎯 Darle vida a los botones rojos de eliminar
+        document.querySelectorAll('.btn-eliminar-admin').forEach(boton => {
+            boton.addEventListener('click', async (e) => {
+                const idBorrar = e.target.getAttribute('data-id');
+                if(confirm("⚠️ ¿Estás seguro de que quieres borrar esta obra maestra de la tienda pública?")) {
+                    e.target.textContent = "Borrando...";
+                    e.target.style.opacity = "0.5";
+                    
+                    // Dispara la orden de eliminación a la nube
+                    await deleteDoc(doc(db, "catalogo_musica", idBorrar));
+                    
+                    // Recarga la lista automáticamente
+                    cargarTracksAdmin(); 
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error("Error al cargar la bóveda:", error);
+        listaAdminTracks.innerHTML = '<p style="color: red; text-align: center;">❌ Error al leer los datos de Firebase.</p>';
     }
-});
+}
+
+// 🎛️ Control del botón desplegable
+if (cabeceraGestor) {
+    cabeceraGestor.addEventListener('click', () => {
+        if (listaAdminTracks.style.display === 'none' || listaAdminTracks.style.display === '') {
+            listaAdminTracks.style.display = 'block';
+            if (iconoDesplegable) iconoDesplegable.style.transform = 'rotate(180deg)';
+            cargarTracksAdmin(); // Solo gasta datos de Google cuando lo abres
+        } else {
+            listaAdminTracks.style.display = 'none';
+            if (iconoDesplegable) iconoDesplegable.style.transform = 'rotate(0deg)';
+        }
+    });
+}
+
+// Hacemos la función global para que el formulario la llame automáticamente tras subir un track
+window.cargarTracksAdmin = cargarTracksAdmin;
 
 // ==========================================
-// BÓVEDA PRIVADA CONECTADA A INDEXEDDB (VERSIÓN DEFINITIVA Y SEGURA)
+// 🎧 BÓVEDA PRIVADA CONECTADA A FIREBASE (MI BIBLIOTECA)
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     const contenedorBiblioteca = document.getElementById('grid-biblioteca');
@@ -799,20 +908,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const compras = JSON.parse(localStorage.getItem(claveCompras)) || [];
         
         if (compras.length > 0) {
-            contenedorBiblioteca.innerHTML = '<p style="text-align:center; color: "#8a2be2"; width: 100%;">Cargando música desde los servidores seguros...</p>';
+            contenedorBiblioteca.innerHTML = '<p style="text-align:center; color: #8a2be2; width: 100%; grid-column: 1 / -1;">⏳ Desencriptando música desde los servidores de Google...</p>';
             
             try {
-                const db = await abrirBaseDeDatos();
                 contenedorBiblioteca.innerHTML = ''; 
                 
-                compras.forEach(trackComprado => {
-                    const transaccion = db.transaction(["catalogo_musica"], "readonly");
-                    const store = transaccion.objectStore("catalogo_musica");
-                    const peticion = store.get(trackComprado.id);
+                // Iteramos sobre las compras guardadas en el historial del cliente
+                for (const trackComprado of compras) {
                     
-                    peticion.onsuccess = () => {
-                        const cancionOriginal = peticion.result;
-                        const datos = cancionOriginal || trackComprado; 
+                    // 🚀 MAGIA: Usamos el ID de la compra para buscar el archivo original, fresco y directo en la nube
+                    const docRef = doc(db, "catalogo_musica", trackComprado.id);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const datosOriginales = docSnap.data();
                         
                         const articulo = document.createElement('article');
                         articulo.classList.add('album');
@@ -820,189 +929,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                         
                         let bloqueAudioHTML = '';
                         
-                        // 🔥 LA SOLUCIÓN ESTÁ AQUÍ: Extraemos el audio de forma segura
-                        let archivoMusical = datos.audio || datos.base64 || trackComprado.audio || '';
-                        
-                        // 1. SI ES UN ÁLBUM (Comprobamos estrictamente si es una LISTA / Array)
-                        if (Array.isArray(archivoMusical)) {
+                        // 1. SI ES UN ÁLBUM
+                        if (datosOriginales.categoria === 'ALBUMES' && Array.isArray(datosOriginales.audio)) {
                             bloqueAudioHTML = `<div style="margin-top: 15px; max-height: 180px; overflow-y: auto; background: rgba(9, 3, 15, 0.6); padding: 10px; border-radius: 8px;">`;
                             
-                            archivoMusical.forEach((pista, index) => {
-                                let urlAudio = typeof pista === 'string' ? pista : (pista.base64 || pista.audio);
-                                let nombrePista = pista.tituloPista || `Pista ${index + 1}`;
+                            datosOriginales.audio.forEach((pista, index) => {
                                 bloqueAudioHTML += `
                                     <div style="margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                                        <p style="font-size: 12px; color: white; margin-bottom: 5px;"><b>${index + 1}.</b> ${nombrePista}</p>
-                                        <audio controls src="${urlAudio}" style="width: 100%; height: 30px;"></audio>
-                                        <a href="${urlAudio}" download="${datos.artista || 'Artista'} - ${nombrePista}.mp3" style="display: block; text-align: center; background: #8a2be2; color: black; padding: 5px; border-radius: 4px; font-size: 11px; margin-top: 5px; text-decoration: none; font-weight: bold;">
-                                            <i class='bx bx-download'></i> DESCARGAR
+                                        <p style="font-size: 12px; color: white; margin-bottom: 5px;"><b>${index + 1}.</b> ${pista.tituloPista}</p>
+                                        <audio controls controlsList="nodownload" src="${pista.url}" style="width: 100%; height: 30px;"></audio>
+                                        <a href="${pista.url}" target="_blank" style="display: block; text-align: center; background: #8a2be2; color: white; padding: 5px; border-radius: 4px; font-size: 11px; margin-top: 5px; text-decoration: none; font-weight: bold;">
+                                            <i class='bx bx-cloud-download'></i> ABRIR / DESCARGAR
                                         </a>
                                     </div>`;
                             });
                             bloqueAudioHTML += `</div>`;
                         } 
-                        // 2. SI ES UN SINGLE (Es un solo archivo de texto/base64)
+                        // 2. SI ES UN SINGLE
                         else {
                             bloqueAudioHTML = `
-                                <audio controls src="${archivoMusical}" style="width: 100%; margin-top: 10px; margin-bottom: 10px;"></audio>
-                                <a href="${archivoMusical}" download="${datos.artista || 'Artista'} - ${datos.titulo || 'Audio'}.mp3" style="display: block; text-align: center; background: #8a2be2; color: black; padding: 8px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold;">
-                                    <i class='bx bx-download'></i> DESCARGAR ARCHIVO
+                                <audio controls controlsList="nodownload" src="${datosOriginales.audio}" style="width: 100%; margin-top: 10px; margin-bottom: 10px;"></audio>
+                                <a href="${datosOriginales.audio}" target="_blank" style="display: block; text-align: center; background: #8a2be2; color: white; padding: 8px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold;">
+                                    <i class='bx bx-cloud-download'></i> ABRIR / DESCARGAR ARCHIVO
                                 </a>
                             `;
                         }
                         
                         articulo.innerHTML = `
-                            <img src="${datos.img || trackComprado.img || '/assets/img/logo.png'}" alt="Portada">
-                            <h4>${datos.artista || trackComprado.artista || 'Artista Desconocido'}</h4>
-                            <p>${datos.titulo || trackComprado.titulo || 'Sin título'}</p>
+                            <img src="${datosOriginales.img}" alt="Portada">
+                            <h4>${datosOriginales.artista}</h4>
+                            <p>${datosOriginales.titulo}</p>
                             <span style="display: inline-block; background: rgba(37, 211, 102, 0.2); color: #8a2be2; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-bottom: 10px;">TRACK ADQUIRIDO</span>
                             ${bloqueAudioHTML}
                         `;
                         contenedorBiblioteca.appendChild(articulo);
-                    };
-                });
+                    }
+                }
                 
             } catch (error) {
-                console.error("Error al acceder a IndexedDB:", error);
-                contenedorBiblioteca.innerHTML = '<p style="color: red; text-align: center;">Error al cargar los servidores seguros.</p>';
+                console.error("Error al acceder a Firebase Database:", error);
+                contenedorBiblioteca.innerHTML = '<p style="color: red; text-align: center; width: 100%; grid-column: 1 / -1;">❌ Error al cargar los servidores seguros.</p>';
             }
             
         } else {
-            contenedorBiblioteca.innerHTML = '<p style="text-align:center; width: 100%; color: white; margin-top: 20px;">Tu bóveda está vacía. ¡Ve a la tienda a buscar nueva música!</p>';
+            contenedorBiblioteca.innerHTML = '<p style="text-align:center; width: 100%; grid-column: 1 / -1; color: white; margin-top: 20px;">Tu bóveda está vacía. ¡Ve a la tienda a buscar nueva música!</p>';
         }
-    }
-});
-
-// PROCESAR PAGO Y TRANSFERIR A BÓVEDA 
-// ==========================================
-function procesarPagoCarrito(evento) {
-    // 1. Freno de mano: Evita que el formulario recargue la página
-    if (evento) {
-        evento.preventDefault(); 
-    }
-
-    const usuarioActivo = localStorage.getItem('usuario_mc_activo');
-    
-    // 2. Verificamos que esté logueado
-    if (!usuarioActivo) {
-        alert("🔒 Debes iniciar sesión para procesar la compra.");
-        window.location.href = '/assets/pages/login.html';
-        return;
-    }
-
-    // 3. Rescatamos el carrito directamente de la memoria dura del navegador
-    let carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
-    
-    // Si la memoria dura está vacía, intentamos con la variable de la página
-    if (carritoGuardado.length === 0) {
-        if (typeof carrito !== 'undefined' && carrito.length > 0) {
-            carritoGuardado = carrito;
-        } else {
-            alert("⚠️ Tu carrito de compras parece estar vacío. Ve a la tienda y agrega música.");
-            return;
-        }
-    }
-
-    // 4. Traemos el casillero de compras de este usuario específico
-    const claveCompras = 'compras_' + usuarioActivo;
-    let comprasAnteriores = JSON.parse(localStorage.getItem(claveCompras)) || [];
-    
-    // 5. Sumamos la música vieja con la música nueva
-    let nuevasCompras = comprasAnteriores.concat(carritoGuardado);
-    
-    // 6. ¡GUARDAMOS CON CANDADO EN LA BASE DE DATOS LOCAL!
-    localStorage.setItem(claveCompras, JSON.stringify(nuevasCompras));
-
-    // 7. Vaciamos el carrito porque ya se cobró todo
-    localStorage.setItem('carrito', '[]'); 
-    if (typeof carrito !== 'undefined') {
-        carrito = [];
-    }
-    if (typeof actualizarCarritoUI === 'function') {
-        actualizarCarritoUI();
-    }
-    
-    // 8. Celebramos y viajamos a la Bóveda
-    alert("✅ ¡Pago exitoso! Tu música ha sido enviada a tu Biblioteca Privada.");
-    window.location.href = '/assets/pages/biblioteca.html';
-}
-
-// ==========================================
-// SISTEMA DE LOGIN ÚNICO Y DEFINITIVO
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const formLogin = document.getElementById('form-login');
-    const mensajeErrorUsuario = document.getElementById('mensaje-error-login');
-
-    if (formLogin) {
-        formLogin.addEventListener('submit', (evento) => {
-            evento.preventDefault();
-            
-            const inputCorreo = document.getElementById('login-identificador');
-            const inputClave = document.getElementById('login-password');
-            const btnSubmit = formLogin.querySelector('button');
-
-            if (!inputCorreo || !inputClave) return; 
-
-            // Convertimos lo que escribió el usuario en la variable 'email'
-            const email = inputCorreo.value.trim().toLowerCase();
-            const password = inputClave.value;
-
-            // 🔥 1. LA PUERTA DEL JEFE (ADMINISTRADOR) 🔥
-            if ((email === "admin_mc" || email === "admin@mc.com") && password === "Jefe2026*") {
-                localStorage.setItem('admin_mc_activo', 'true');
-                
-                if (btnSubmit) {
-                    btnSubmit.textContent = 'ABRIENDO CABINA...';
-                    btnSubmit.style.backgroundColor = '#8a2be2';
-                    btnSubmit.style.pointerEvents = 'none';
-                }
-                
-                // Va directo a su panel (Son vecinos en pages)
-                setTimeout(() => { window.location.href = '/assets/pages/admin.html'; }, 1000);
-                return; // ¡Frena todo para que no se mezcle con el cliente!
-            }
-
-            // ==========================================
-            // 2. LA PUERTA DE LOS CLIENTES NORMALES
-            // ==========================================
-            // Busca en ambas posibles bases de datos por si acaso
-            let usuariosBD = JSON.parse(localStorage.getItem('mc_usuarios')) || JSON.parse(localStorage.getItem('usuarios_mc_db')) || [];
-            
-            const usuarioEncontrado = usuariosBD.find(user => 
-                (user.correo || "").toLowerCase() === email || (user.nombre || "").toLowerCase() === email
-            );
-
-            // Verifica si existe y si la clave coincide (soporta 'clave' o 'password')
-            if (!usuarioEncontrado || (usuarioEncontrado.clave !== password && usuarioEncontrado.password !== password)) {
-                if (mensajeErrorUsuario) {
-                    mensajeErrorUsuario.textContent = "❌ Correo o contraseña incorrectos.";
-                    mensajeErrorUsuario.style.display = "block"; 
-                } else {
-                    alert("❌ Correo o contraseña incorrectos.");
-                }
-                return;
-            }
-
-            if (mensajeErrorUsuario) mensajeErrorUsuario.style.display = "none";
-            
-            // Guardamos las credenciales del cliente
-            localStorage.setItem('mc_usuario_activo', JSON.stringify({
-                nombre: usuarioEncontrado.nombre, 
-                correo: usuarioEncontrado.correo,
-                token: "mc_" + Math.random().toString(36).substr(2, 9)
-            }));
-            localStorage.setItem('usuario_mc_activo', usuarioEncontrado.correo);
-
-            if (btnSubmit) {
-                btnSubmit.textContent = 'VERIFICANDO...';
-                btnSubmit.style.opacity = '0.7';
-                btnSubmit.style.pointerEvents = 'none';
-            }
-
-            // Va directo a la tienda (Son vecinos en pages)
-            setTimeout(() => { window.location.href = "tienda.html"; }, 1500);
-        });
     }
 });
 
@@ -1101,77 +1072,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// // ==========================================
-// // SISTEMA DE INICIO DE SESIÓN (LOGIN INTELIGENTE)
-// // ==========================================
-// document.addEventListener('DOMContentLoaded', () => {
-//     const formLogin = document.getElementById('form-login');
-//     const mensajeErrorLogin = document.getElementById('mensaje-error-login');
-
-//     function mostrarErrorLogin(mensaje) {
-//         if (mensajeErrorLogin) {
-//             mensajeErrorLogin.textContent = mensaje;
-//             mensajeErrorLogin.style.display = 'block';
-//             setTimeout(() => { mensajeErrorLogin.style.display = 'none'; }, 4000);
-//         } else {
-//             alert(mensaje);
-//         }
-//     }
-
-//     if (formLogin) {
-//         formLogin.addEventListener('submit', (e) => {
-//             e.preventDefault(); 
-
-//             // Capturamos lo que el usuario escribió
-//             const inputIdentificador = document.getElementById('login-identificador').value.trim().toLowerCase();
-//             const password = document.getElementById('login-password').value;
-
-//             // 🔥 LA PUERTA SECRETA DEL ADMINISTRADOR 🔥
-//             // Si el nombre es "admin_mc" y la contraseña es tu clave secreta:
-//             if (inputIdentificador === "admin_mc" && password === "Jefe2026*") {
-//                 // Te damos la Llave Maestra
-//                 localStorage.setItem('admin_mc_activo', 'true');
-//                 alert("👨‍💻 Bienvenido a la cabina de mando, Jefe.");
-                
-//                 // Pon aquí la ruta correcta de tu archivo de administrador
-//                 window.location.href = '/admin.html'; 
-//                 return; // Frenamos el código aquí para que no siga buscando como cliente
-//             }
-
-//             // ==================================================
-//             // Si NO es el admin, sigue el código normal para clientes:
-//             // ==================================================
-//             let usuarios = JSON.parse(localStorage.getItem('usuarios_mc_db')) || [];
-
-//             const usuarioEncontrado = usuarios.find(user => 
-//                 (user.correo.toLowerCase() === inputIdentificador || user.nombre.toLowerCase() === inputIdentificador) 
-//                 && user.password === password
-//             );
-
-//             if (!usuarioEncontrado) {
-//                 return mostrarErrorLogin("❌ Usuario, correo o contraseña incorrectos.");
-//             }
-
-//            // Pase VIP para cliente normal
-//             localStorage.setItem('usuario_mc_activo', usuarioEncontrado.correo);
-//             alert(`✅ ¡Qué bueno verte de nuevo, ${usuarioEncontrado.nombre}!`);
-            
-//             // 👇 ESTA ES LA LÍNEA QUE CAMBIAS 👇
-//             window.location.href = '/assets/pages/tienda.html'; 
-//         });
-//     }
-// });
-
 // ==========================================
-// CEREBRO DEL PERFIL DE USUARIO
+// 👤 CEREBRO DEL PERFIL DE USUARIO Y AVATAR (FIREBASE)
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     
-    // Verificamos si estamos en la página de perfil (buscando un elemento específico)
     const perfilNombre = document.getElementById('perfil-nombre');
+    const perfilImg = document.getElementById('perfil-img');
+    const inputAvatar = document.getElementById('input-avatar');
     
     if (perfilNombre) {
         const usuarioActivo = localStorage.getItem('usuario_mc_activo');
+        const datosLocales = JSON.parse(localStorage.getItem('mc_usuario_activo'));
         
         // Si nadie inició sesión, lo mandamos al login
         if (!usuarioActivo) {
@@ -1179,39 +1091,107 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Extraemos los datos del usuario de la base de datos
-        let usuarios = JSON.parse(localStorage.getItem('usuarios_mc_db')) || [];
-        const misDatos = usuarios.find(user => user.correo === usuarioActivo);
-
-        // 2. Extraemos cuántas canciones ha comprado
+        // --- 1. CARGAR CANTIDAD DE TRACKS COMPRADOS ---
         const claveCompras = 'compras_' + usuarioActivo;
         const misCompras = JSON.parse(localStorage.getItem(claveCompras)) || [];
-
-        // 3. Imprimimos los datos en la pantalla
-        if (misDatos) {
-            document.getElementById('perfil-nombre').textContent = misDatos.nombre;
-            document.getElementById('perfil-correo').textContent = misDatos.correo;
-            document.getElementById('perfil-fecha').textContent = misDatos.fechaRegistro || 'Reciente';
-            document.getElementById('perfil-tracks').textContent = `${misCompras.length} Tracks`;
+        const elementoTracks = document.getElementById('perfil-tracks');
+        if (elementoTracks) {
+            elementoTracks.textContent = `${misCompras.length} Tracks`;
         }
 
-        // 4. LÓGICA DE CERRAR SESIÓN
+        // --- 2. CARGAR FOTO DE PERFIL (AVATAR) ---
+        const claveAvatar = 'avatar_' + usuarioActivo;
+        const avatarGuardado = localStorage.getItem(claveAvatar);
+        if (avatarGuardado && perfilImg) {
+            perfilImg.src = avatarGuardado;
+        }
+
+        // ==========================================
+        // --- 3. CONECTAR CON FIREBASE PARA DATOS REALES (PARCHE TURBO) ---
+        try {
+        // 🚀 ACCIÓN INMEDIATA: Pintamos el nombre y correo usando la memoria local de la sesión activa
+            if (datosLocales && datosLocales.nombre) {
+                perfilNombre.textContent = datosLocales.nombre;
+            } else if (usuarioActivo === "admin@mc.com" || usuarioActivo === "admin_mc") {
+                perfilNombre.textContent = "EL JEFE (ADMIN)";
+            } else {
+                perfilNombre.textContent = "Cliente VIP";
+            }
+
+            const elementoCorreo = document.getElementById('perfil-correo');
+            if(elementoCorreo) elementoCorreo.textContent = usuarioActivo;
+
+            // ☁️ BÚSQUEDA EN SEGUNDO PLANO: Vamos a la nube de Google solo por la fecha de registro
+            if (datosLocales && datosLocales.token && datosLocales.token.includes('firebase_')) {
+                const uid = datosLocales.token.replace('firebase_', '');
+                const docRef = doc(db, "usuarios", uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const datosNube = docSnap.data();
+                    
+                    // Si encontramos la fecha en Firebase, la pintamos de inmediato
+                    if (datosNube.fechaRegistro) {
+                        const fecha = new Date(datosNube.fechaRegistro);
+                        const elementoFecha = document.getElementById('perfil-fecha');
+                        if (elementoFecha) elementoFecha.textContent = fecha.toLocaleDateString();
+                    }
+                }
+            } else if (usuarioActivo === "admin@mc.com" || usuarioActivo === "admin_mc") {
+                const elementoFecha = document.getElementById('perfil-fecha');
+                if (elementoFecha) elementoFecha.textContent = "Día 1";
+            }
+
+        } catch (error) {
+            console.error("Error cargando perfil desde la nube:", error);
+            // Si el internet o la nube fallan, el nombre ya se pintó arriba de forma segura 🚀
+        }
+
+        // --- 4. LÓGICA DE CERRAR SESIÓN SEGURA ---
         const btnCerrarSesion = document.getElementById('btn-cerrar-sesion');
         if (btnCerrarSesion) {
             btnCerrarSesion.addEventListener('click', () => {
                 const confirmar = confirm("¿Estás seguro de que quieres cerrar sesión?");
                 if (confirmar) {
-                    // Borramos la "Llave VIP"
+                    // Borramos TODAS las llaves de seguridad al salir
                     localStorage.removeItem('usuario_mc_activo');
-                    // Lo mandamos al inicio
+                    localStorage.removeItem('mc_usuario_activo');
+                    localStorage.removeItem('mc_tiempo_sesion');
+                    localStorage.removeItem('admin_mc_activo');
                     window.location.href = '/index.html';
+                }
+            });
+        }
+
+        // --- 5. LÓGICA PARA CAMBIAR LA FOTO DE PERFIL ---
+        if (inputAvatar && perfilImg) {
+            inputAvatar.addEventListener('change', function(event) {
+                const archivo = event.target.files[0]; 
+                
+                if (archivo) {
+                    if (archivo.size > 2 * 1024 * 1024) {
+                        alert("⚠️ La imagen es muy pesada. Elige una de menos de 2MB.");
+                        return;
+                    }
+
+                    const lector = new FileReader();
+                    lector.onload = function(e) {
+                        const fotoBase64 = e.target.result; 
+                        
+                        perfilImg.src = fotoBase64;
+                        localStorage.setItem(claveAvatar, fotoBase64); // Guardamos su foto única
+                        
+                        const nombreOriginal = perfilNombre.textContent;
+                        perfilNombre.textContent = "¡Foto Actualizada! ✅";
+                        setTimeout(() => { perfilNombre.textContent = nombreOriginal; }, 2000);
+                    };
+                    lector.readAsDataURL(archivo);
                 }
             });
         }
     }
 });
 
-// ==========================================
 // ==========================================
 // CONTROLADOR GLOBAL DEL MENÚ (DINÁMICO)
 // ==========================================
@@ -1311,64 +1291,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// SISTEMA DE FOTO DE PERFIL (AVATAR)
+// ⏱️ GUARDIÁN DE TIEMPO DE SESIÓN (EXPIRACIÓN DE 12 HORAS)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    const inputAvatar = document.getElementById('input-avatar');
-    const perfilImg = document.getElementById('perfil-img');
+    const usuarioActivo = localStorage.getItem('usuario_mc_activo');
+    const adminActivo = localStorage.getItem('admin_mc_activo');
+    const tiempoSesion = localStorage.getItem('mc_tiempo_sesion');
 
-    // 1. CARGAR LA FOTO AL ENTRAR AL PERFIL
-    if (perfilImg) {
-        const usuarioActivo = localStorage.getItem('usuario_mc_activo');
-        let usuarios = JSON.parse(localStorage.getItem('usuarios_mc_db')) || [];
-        const misDatos = usuarios.find(user => user.correo === usuarioActivo);
+    // Si hay alguien logueado y tenemos la hora guardada
+    if ((usuarioActivo || adminActivo) && tiempoSesion) {
+        const tiempoActual = Date.now();
+        const tiempoPasado = tiempoActual - parseInt(tiempoSesion);
 
-        // Si el cliente ya tenía una foto guardada, la ponemos en pantalla
-        if (misDatos && misDatos.avatar) {
-            perfilImg.src = misDatos.avatar;
+        // ⏱️ Configuración del límite: 12 horas (puedes cambiar el 12 por 24 si quieres un día entero)
+        const limiteHoras = 1;
+        const limiteMilisegundos = limiteHoras * 60 * 60 * 1000;
+
+        // Si el tiempo pasado es mayor al límite permitido...
+        if (tiempoPasado > limiteMilisegundos) {
+            // 🧹 Borramos todas las llaves y pases VIP
+            localStorage.removeItem('usuario_mc_activo');
+            localStorage.removeItem('mc_usuario_activo');
+            localStorage.removeItem('mc_tiempo_sesion');
+            localStorage.removeItem('admin_mc_activo'); 
+
+            // Avisamos y lo mandamos al login
+            alert("⏳ Tu sesión ha expirado por seguridad. Por favor, vuelve a iniciar sesión.");
+            window.location.href = '/assets/pages/login.html';
         }
-    }
-
-    // 2. CAMBIAR LA FOTO CUANDO TOCA LA CÁMARA
-    if (inputAvatar && perfilImg) {
-        inputAvatar.addEventListener('change', function(event) {
-            const archivo = event.target.files[0]; // Capturamos la foto
-            
-            if (archivo) {
-                // Filtro de peso (Opcional, pero recomendado: Máximo 2MB)
-                if (archivo.size > 2 * 1024 * 1024) {
-                    alert("⚠️ La imagen es muy pesada. Elige una de menos de 2MB.");
-                    return;
-                }
-
-                const lector = new FileReader();
-                
-                // Cuando termine de leer la imagen...
-                lector.onload = function(e) {
-                    const fotoBase64 = e.target.result; // La foto convertida en texto
-                    
-                    // A. Cambiamos la foto en la pantalla al instante
-                    perfilImg.src = fotoBase64;
-
-                    // B. La guardamos en su bóveda secreta de datos
-                    const usuarioActivo = localStorage.getItem('usuario_mc_activo');
-                    let usuarios = JSON.parse(localStorage.getItem('usuarios_mc_db')) || [];
-                    let indiceUsuario = usuarios.findIndex(user => user.correo === usuarioActivo);
-                    
-                    if (indiceUsuario !== -1) {
-                        usuarios[indiceUsuario].avatar = fotoBase64;
-                        localStorage.setItem('usuarios_mc_db', JSON.stringify(usuarios));
-                        
-                        // Pequeño aviso visual (se borra en 2 seg)
-                        const nombreOriginal = document.getElementById('perfil-nombre').textContent;
-                        document.getElementById('perfil-nombre').textContent = "¡Foto Actualizada! ✅";
-                        setTimeout(() => { document.getElementById('perfil-nombre').textContent = nombreOriginal; }, 2000);
-                    }
-                };
-                
-                // Inicia la conversión
-                lector.readAsDataURL(archivo);
-            }
-        });
     }
 });
