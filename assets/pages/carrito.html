@@ -40,7 +40,7 @@
         <div class="resumen-carrito">
             <h2>TOTAL: <span class="total-precio">$0.00</span></h2>
             
-            <button id="btn-proceder" class="btn-primario" style="width: 100%; margin-top: 15px;">PROCEDER AL PAGO</button>
+            <div id="paypal-button-container"></div>
             
             <div id="contenedor-pago" style="display: none; margin-top: 20px; border-top: 1px solid var(--borde-tarjeta); padding-top: 20px;">
                 <h3 style="margin-bottom: 15px; color: var(--color-texto); font-size: 16px; text-align: left;">DATOS DE TARJETA</h3>
@@ -107,6 +107,8 @@
     <footer>
         <p>&copy; 2026 MCE Productions. Todos los derechos reservados.</p>
     </footer>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=AUorUWfeljVb4wOVFFF0bWmsO7tWn4fJoCdeJWToOF-lU7AQIaBp2h0he1E8O0EhMYnwX9flVXASJqUX&currency=USD"></script>
 
     <script type="module" src="/assets/js/script.js?v=3.0"></script>
 </body>
